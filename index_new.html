@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="倉儲與運輸物流系統">
+	<meta name="author" content="冷俊瑩">
+	<link rel="stylesheet" href="resource/bootstrap.min.css">
+	<script src="resource/jquery.min.js"></script>
+	<script src="resource/bootstrap.min.js"></script>
+	<title>倉儲與運輸物流系統</title>
+	<header>
+		<h1 style="text-align: center;">倉儲與運輸物流系統</h1>
+	</header>
+</head>
+<body>
+	<div class="container">
+		<ul class="nav nav-tabs nav-justified">
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">倉庫主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('whouse/create_whouse.html')">新增倉庫</a></li>
+				<li><a onclick="location.assign('whouse/modify_whouse.html')">修改倉庫</a></li>
+				<li><a onclick="location.assign('whouse/delete_whouse.html')">刪除倉庫</a></li>
+				<li><a onclick="location.assign('whouse/recover_whouse.html')">恢復倉庫</a></li>
+				<li><a onclick="location.assign('whouse/search_whouse.html')">查詢倉庫</a></li>
+				<li><a onclick="location.assign('whouse/export_whouse.html')">輸出倉庫</a></li>
+			</ul>
+			</li>
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">物料主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('item/create_item.html')">新增物料</a></li>
+				<li><a onclick="location.assign('item/modify_item.html')">修改物料</a></li>
+				<li><a onclick="location.assign('item/delete_item.html')">刪除物料</a></li>
+				<li><a onclick="location.assign('item/recover_item.html')">恢復物料</a></li>
+				<li><a onclick="location.assign('item/search_item.html')">查詢物料</a></li>
+				<li><a onclick="location.assign('item/export_item.html')">輸出物料</a></li>
+			</ul>
+			</li>
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">倉庫物料主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('whouseitem/create_whouseitem.html')">新增倉庫物料</a></li>
+				<li><a onclick="location.assign('whouseitem/modify_whouseitem.html')">修改倉庫物料</a></li>
+				<li><a onclick="location.assign('whouseitem/delete_whouseitem.html')">刪除倉庫物料</a></li>
+				<li><a onclick="location.assign('whouseitem/recover_whouseitem.html')">恢復倉庫物料</a></li>
+				<li><a onclick="location.assign('whouseitem/search_whouseitem.html')">查詢倉庫物料</a></li>
+				<li><a onclick="location.assign('whouseitem/export_whouseitem.html')">輸出倉庫物料</a></li>
+			</ul>
+			</li>
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">物流主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('logistic/_logistic.html')">新增物流</a></li>
+				<li><a onclick="location.assign('logistic/_logistic.html')">待辦物流</a></li>
+				<li><a onclick="location.assign('logistic/_logistic.html')">查詢物流</a></li>
+				<li><a onclick="location.assign('logistic/_logistic.html')">輸出物流</a></li>
+			</ul>
+			</li>
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">請求主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('request/_request.html')">新增請求</a></li>
+				<li><a onclick="location.assign('request/_request.html')">待辦請求</a></li>
+				<li><a onclick="location.assign('request/_request.html')">查詢請求</a></li>
+				<li><a onclick="location.assign('request/_request.html')">輸出請求</a></li>
+			</ul>
+			</li>
+		</ul>
+	</div>
+</body>
+
+<script type="text/javascript">
+	function Replace(module, event) {
+		var request = new XMLHttpRequest();
+		request.open("POST", "index.php");
+		var data = "module=" + module + "&event=" + event;
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.send(data);
+
+		request.onreadystatechange = function() {
+			if (request.readyState === 4 && request.status === 200) {
+				var data = JSON.parse(request.responseText);
+				if (data.state == 0) {
+					location.assign(data.destination);
+				}
+				else if (data.state == 1) {
+					alert("無效的請求");
+				}
+				else if (data.state == 2) {
+					alert("無效的請求模組");
+				}
+				else if (data.state == 3) {
+					alert("無效的請求事件");
+				}
+			}
+		}
+	}
+</script>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="倉儲與運輸物流系統">
+		<meta name="author" content="冷俊瑩">
+		<script src="../resource/custom.js"></script>
+		<link href="../resource/custom.css" rel="stylesheet">
+		<title>恢復倉庫</title>
+		<header>
+			<h1>恢復倉庫</h1>
+		</header>
+	</head>
+	<body onload="time()">
+		<p>現在時間：<span id="now"></span></p>
+		<div id="Main">
+			<table>
+				<tr><td>倉庫編號</td><td><input type="text" name="whouseno" id="whouseno" onchange="recover_whouseno()"></td></tr>
+				<tr><td>倉庫名稱</td><td><span id="whousenm"></span></td></tr>
+				<tr><td>倉庫概述</td><td><span id="whousedescription"></span></td></tr>
+				<tr><td>備註</td><td><span id="whousememo"></span></td></tr>
+			</table>
+			<button id="recover_whouse" onclick="recover_whouse()" style="display: none;">確定恢復</button>
+			<button onclick="Refresh()">重新整理</button>
+			<button onclick="location.assign('index.php')">返回首頁</button>
+		</div>
+		<div id="Last">
+			<table>
+				<tr><td>倉庫編號</td><td><span id="Lastwhouseno"></span></td></tr>
+				<tr><td>倉庫名稱</td><td><span id="Lastwhousenm"></span></td></tr>
+				<tr><td>倉庫概述</td><td><span id="Lastwhousedescription"></span></td></tr>
+				<tr><td>備註</td><td><span id="Lastwhousememo"></span></td></tr>
+			</table>
+		</div>
+	</body>
+	<script type="text/javascript">
+		function recover_whouseno() {
+			var whouseno = document.getElementById("whouseno").value;
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=whouse&event=check_delete&whouseno=" + whouseno;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						document.getElementById("whouseno").readOnly = true;
+						document.getElementById("whousenm").innerHTML = data.whousenm;
+						document.getElementById("whousedescription").innerHTML = data.description;
+						document.getElementById("whousememo").innerHTML = data.memo;
+						document.getElementById("recover_whouse").style.display = '';
+					}
+					else {
+						alert(data.message);
+						document.getElementById("whouseno").readOnly = false;
+						document.getElementById("whousenm").innerHTML = '';
+						document.getElementById("whousedescription").innerHTML = '';
+						document.getElementById("whousememo").innerHTML = '';
+						document.getElementById("recover_whouse").style.display = 'none';
+					}
+				}
+			}
+		}
+
+		function recover_whouse() {
+			var whouseno = document.getElementById("whouseno").value;
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=whouse&event=recover&whouseno=" + whouseno;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						alert("成功刪除");
+						document.getElementById("Last").style.visibility = 'visible';
+						document.getElementById("Lastwhouseno").innerHTML = document.getElementById("whouseno").value;
+						document.getElementById("Lastwhousenm").innerHTML = document.getElementById("whousenm").innerHTML;
+						document.getElementById("Lastwhousedescription").innerHTML = document.getElementById("whousedescription").innerHTML;
+						document.getElementById("Lastwhousememo").innerHTML = document.getElementById("whousememo").innerHTML;
+						Refresh();
+					}
+					else {
+						alert(data.message);
+					}
+				}
+			}
+		}
+
+		function Refresh() {
+			document.getElementById("whouseno").readOnly = false;
+			document.getElementById("whouseno").value = null;
+			document.getElementById("whousenm").innerHTML = null;
+			document.getElementById("whousedescription").innerHTML = null;
+			document.getElementById("whousememo").innerHTML = null;
+		}
+	</script>
+</html>
