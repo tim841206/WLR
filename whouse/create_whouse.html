@@ -20,7 +20,7 @@
 				<tr><td>倉庫概述</td><td><input type="text" name="whousedescription" id="whousedescription" onchange="check_200(document.getElementById('whousedescription').value)"></td></tr>
 				<tr><td>備註</td><td><input type="text" name="whousememo" id="whousememo" onchange="check_200(document.getElementById('whousememo').value)"></td></tr>
 			</table>
-			<button id="create_whouse" onclick="create_whouse()" style="display: none;">確定新增</button>
+			<button id="create_whouse" onclick="create_whouse()" style="visibility: hidden;">確定新增</button>
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
@@ -44,13 +44,14 @@
 			request.onreadystatechange = function() {
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
-					if (data.message != 'ok') {
-						alert(data.message);
-						document.getElementById("create_whouse").style.display = 'none';
+					if (data.message == 'ok') {
+						document.getElementById("whouseno").readOnly = true;
+						document.getElementById("create_whouse").style.visibility = 'visible';
 					}
 					else {
-						document.getElementById("whouseno").readOnly = true;
-						document.getElementById("create_whouse").style.display = '';
+						alert(data.message);
+						document.getElementById("whouseno").readOnly = false;
+						document.getElementById("create_whouse").style.visibility = 'hidden';
 					}
 				}
 			}
@@ -92,6 +93,7 @@
 			document.getElementById("whousenm").value = null;
 			document.getElementById("whousedescription").value = null;
 			document.getElementById("whousememo").value = null;
+			document.getElementById("create_whouse").style.visibility = 'hidden';
 		}
 	</script>
 </html>

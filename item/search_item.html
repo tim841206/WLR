@@ -44,26 +44,14 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'Success') {
-						if (document.getElementById("itemnm").innerHTML != '') {
-							document.getElementById("Last").style.visibility = 'visible';
-							document.getElementById("Lastitemno").innerHTML = document.getElementById("itemno").value;
-							document.getElementById("Lastitemnm").innerHTML = document.getElementById("itemnm").innerHTML;
-							document.getElementById("Lastitemdescription").innerHTML = document.getElementById("itemdescription").innerHTML;
-							document.getElementById("Lastitemmemo").innerHTML = document.getElementById("itemmemo").innerHTML;
-						}
+						document.getElementById("itemno").readOnly = true;
 						document.getElementById("itemnm").innerHTML = data.itemnm;
 						document.getElementById("itemdescription").innerHTML = data.description;
 						document.getElementById("itemmemo").innerHTML = data.memo;
 					}
 					else {
 						alert(data.message);
-						if (document.getElementById("itemnm").innerHTML != '') {
-							document.getElementById("Last").style.visibility = 'visible';
-							document.getElementById("Lastitemno").innerHTML = document.getElementById("itemno").value;
-							document.getElementById("Lastitemnm").innerHTML = document.getElementById("itemnm").innerHTML;
-							document.getElementById("Lastitemdescription").innerHTML = document.getElementById("itemdescription").innerHTML;
-							document.getElementById("Lastitemmemo").innerHTML = document.getElementById("itemmemo").innerHTML;
-						}
+						document.getElementById("itemno").readOnly = false;
 						document.getElementById("itemnm").innerHTML = '';
 						document.getElementById("itemdescription").innerHTML = '';
 						document.getElementById("itemmemo").innerHTML = '';
@@ -73,6 +61,12 @@
 		}
 
 		function Refresh() {
+			document.getElementById("Last").style.visibility = 'visible';
+			document.getElementById("Lastitemno").innerHTML = document.getElementById("itemno").value;
+			document.getElementById("Lastitemnm").innerHTML = document.getElementById("itemnm").innerHTML;
+			document.getElementById("Lastitemdescription").innerHTML = document.getElementById("itemdescription").innerHTML;
+			document.getElementById("Lastitemmemo").innerHTML = document.getElementById("itemmemo").innerHTML;
+			document.getElementById("itemno").readOnly = false;
 			document.getElementById("itemno").value = null;
 			document.getElementById("itemnm").innerHTML = null;
 			document.getElementById("itemdescription").innerHTML = null;

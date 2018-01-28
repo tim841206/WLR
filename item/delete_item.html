@@ -20,7 +20,7 @@
 				<tr><td>物料概述</td><td><span id="itemdescription"></span></td></tr>
 				<tr><td>備註</td><td><span id="itemmemo"></span></td></tr>
 			</table>
-			<button id="delete_item" onclick="delete_item()" style="display: none;">確定刪除</button>
+			<button id="delete_item" onclick="delete_item()" style="visibility: hidden;">確定刪除</button>
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
@@ -49,7 +49,7 @@
 						document.getElementById("itemnm").innerHTML = data.itemnm;
 						document.getElementById("itemdescription").innerHTML = data.description;
 						document.getElementById("itemmemo").innerHTML = data.memo;
-						document.getElementById("delete_item").style.display = '';
+						document.getElementById("delete_item").style.visibility = 'visible';
 					}
 					else {
 						alert(data.message);
@@ -57,7 +57,7 @@
 						document.getElementById("itemnm").innerHTML = '';
 						document.getElementById("itemdescription").innerHTML = '';
 						document.getElementById("itemmemo").innerHTML = '';
-						document.getElementById("delete_item").style.display = 'none';
+						document.getElementById("delete_item").style.visibility = 'hidden';
 					}
 				}
 			}
@@ -95,6 +95,7 @@
 			document.getElementById("itemnm").innerHTML = null;
 			document.getElementById("itemdescription").innerHTML = null;
 			document.getElementById("itemmemo").innerHTML = null;
+			document.getElementById("delete_item").style.visibility = 'hidden';
 		}
 	</script>
 </html>

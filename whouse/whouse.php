@@ -34,6 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			echo json_encode(array('message' => $message));
 			return;
 		}
+		elseif ($_POST['event'] == 'check_exist') {
+			$message = check_exist($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
 		elseif ($_POST['event'] == 'check_delete') {
 			$message = check_delete($_POST);
 			if (is_array($message)) {
@@ -73,7 +78,7 @@ function create($content) {
 	$whousenm = $content['whousenm'];
 	$whousedescription = $content['whousedescription'];
 	$whousememo = $content['whousememo'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -127,7 +132,7 @@ function modify($content) {
 	$whousenm = $content['whousenm'];
 	$whousedescription = $content['whousedescription'];
 	$whousememo = $content['whousememo'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -178,7 +183,7 @@ function delete($content) {
 	$account = $content['account'];
 	$token = $content['token'];
 	$whouseno = $content['whouseno'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -223,7 +228,7 @@ function query($content) {
 	$account = $content['account'];
 	$token = $content['token'];
 	$whouseno = $content['whouseno'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -261,7 +266,7 @@ function check_empty($content) {
 	$account = $content['account'];
 	$token = $content['token'];
 	$whouseno = $content['whouseno'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -294,11 +299,48 @@ function check_empty($content) {
 	}
 }
 
+function check_exist($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whouseno = $content['whouseno'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	elseif (empty($whouseno)) {
+		return 'Empty warehouse number';
+	}
+	elseif (strlen($whouseno) > 20) {
+		return 'Warehouse number exceed length limit';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		else {
+			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno AND ACTCODE=1");
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'Unfound warehouse';
+			}
+			else {
+				return 'ok';
+			}
+		}
+	}
+}
+
 function check_delete($content) {
 	$account = $content['account'];
 	$token = $content['token'];
 	$whouseno = $content['whouseno'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -336,7 +378,7 @@ function recover($content) {
 	$account = $content['account'];
 	$token = $content['token'];
 	$whouseno = $content['whouseno'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}

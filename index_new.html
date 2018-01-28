@@ -47,48 +47,20 @@
 			</li>
 			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">物流主檔維護<span class="caret"></span></a>
 			<ul class="dropdown-menu">
-				<li><a onclick="location.assign('logistic/_logistic.html')">新增物流</a></li>
-				<li><a onclick="location.assign('logistic/_logistic.html')">待辦物流</a></li>
-				<li><a onclick="location.assign('logistic/_logistic.html')">查詢物流</a></li>
-				<li><a onclick="location.assign('logistic/_logistic.html')">輸出物流</a></li>
+				<li><a onclick="location.assign('logistic/create_logistic.html')">新增物流</a></li>
+				<li><a onclick="location.assign('logistic/waiting_logistic.html')">待辦物流</a></li>
+				<li><a onclick="location.assign('logistic/search_logistic.html')">查詢物流</a></li>
+				<li><a onclick="location.assign('logistic/export_logistic.html')">輸出物流</a></li>
 			</ul>
 			</li>
 			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">請求主檔維護<span class="caret"></span></a>
 			<ul class="dropdown-menu">
-				<li><a onclick="location.assign('request/_request.html')">新增請求</a></li>
-				<li><a onclick="location.assign('request/_request.html')">待辦請求</a></li>
-				<li><a onclick="location.assign('request/_request.html')">查詢請求</a></li>
-				<li><a onclick="location.assign('request/_request.html')">輸出請求</a></li>
+				<li><a onclick="location.assign('request/create_request.html')">新增請求</a></li>
+				<li><a onclick="location.assign('request/waiting_request.html')">待辦請求</a></li>
+				<li><a onclick="location.assign('request/search_request.html')">查詢請求</a></li>
+				<li><a onclick="location.assign('request/export_request.html')">輸出請求</a></li>
 			</ul>
 			</li>
 		</ul>
 	</div>
 </body>
-
-<script type="text/javascript">
-	function Replace(module, event) {
-		var request = new XMLHttpRequest();
-		request.open("POST", "index.php");
-		var data = "module=" + module + "&event=" + event;
-		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		request.send(data);
-
-		request.onreadystatechange = function() {
-			if (request.readyState === 4 && request.status === 200) {
-				var data = JSON.parse(request.responseText);
-				if (data.state == 0) {
-					location.assign(data.destination);
-				}
-				else if (data.state == 1) {
-					alert("無效的請求");
-				}
-				else if (data.state == 2) {
-					alert("無效的請求模組");
-				}
-				else if (data.state == 3) {
-					alert("無效的請求事件");
-				}
-			}
-		}
-	}
-</script>

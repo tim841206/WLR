@@ -20,7 +20,7 @@
 				<tr><td>倉庫概述</td><td><span id="whousedescription"></span></td></tr>
 				<tr><td>備註</td><td><span id="whousememo"></span></td></tr>
 			</table>
-			<button id="delete_whouse" onclick="delete_whouse()" style="display: none;">確定刪除</button>
+			<button id="delete_whouse" onclick="delete_whouse()" style="visibility: hidden;">確定刪除</button>
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
@@ -49,7 +49,7 @@
 						document.getElementById("whousenm").innerHTML = data.whousenm;
 						document.getElementById("whousedescription").innerHTML = data.description;
 						document.getElementById("whousememo").innerHTML = data.memo;
-						document.getElementById("delete_whouse").style.display = '';
+						document.getElementById("delete_whouse").style.visibility = 'visible';
 					}
 					else {
 						alert(data.message);
@@ -57,7 +57,7 @@
 						document.getElementById("whousenm").innerHTML = '';
 						document.getElementById("whousedescription").innerHTML = '';
 						document.getElementById("whousememo").innerHTML = '';
-						document.getElementById("delete_whouse").style.display = 'none';
+						document.getElementById("delete_whouse").style.visibility = 'hidden';
 					}
 				}
 			}
@@ -95,6 +95,7 @@
 			document.getElementById("whousenm").innerHTML = null;
 			document.getElementById("whousedescription").innerHTML = null;
 			document.getElementById("whousememo").innerHTML = null;
+			document.getElementById("delete_whouse").style.visibility = 'hidden';
 		}
 	</script>
 </html>

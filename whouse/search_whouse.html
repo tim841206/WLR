@@ -44,26 +44,14 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'Success') {
-						if (document.getElementById("whousenm").innerHTML != '') {
-							document.getElementById("Last").style.visibility = 'visible';
-							document.getElementById("Lastwhouseno").innerHTML = document.getElementById("whouseno").value;
-							document.getElementById("Lastwhousenm").innerHTML = document.getElementById("whousenm").innerHTML;
-							document.getElementById("Lastwhousedescription").innerHTML = document.getElementById("whousedescription").innerHTML;
-							document.getElementById("Lastwhousememo").innerHTML = document.getElementById("whousememo").innerHTML;
-						}
+						document.getElementById("whouseno").readOnly = true;
 						document.getElementById("whousenm").innerHTML = data.whousenm;
 						document.getElementById("whousedescription").innerHTML = data.description;
 						document.getElementById("whousememo").innerHTML = data.memo;
 					}
 					else {
 						alert(data.message);
-						if (document.getElementById("whousenm").innerHTML != '') {
-							document.getElementById("Last").style.visibility = 'visible';
-							document.getElementById("Lastwhouseno").innerHTML = document.getElementById("whouseno").value;
-							document.getElementById("Lastwhousenm").innerHTML = document.getElementById("whousenm").innerHTML;
-							document.getElementById("Lastwhousedescription").innerHTML = document.getElementById("whousedescription").innerHTML;
-							document.getElementById("Lastwhousememo").innerHTML = document.getElementById("whousememo").innerHTML;
-						}
+						document.getElementById("whouseno").readOnly = false;
 						document.getElementById("whousenm").innerHTML = '';
 						document.getElementById("whousedescription").innerHTML = '';
 						document.getElementById("whousememo").innerHTML = '';
@@ -73,6 +61,12 @@
 		}
 
 		function Refresh() {
+			document.getElementById("Last").style.visibility = 'visible';
+			document.getElementById("Lastwhouseno").innerHTML = document.getElementById("whouseno").value;
+			document.getElementById("Lastwhousenm").innerHTML = document.getElementById("whousenm").innerHTML;
+			document.getElementById("Lastwhousedescription").innerHTML = document.getElementById("whousedescription").innerHTML;
+			document.getElementById("Lastwhousememo").innerHTML = document.getElementById("whousememo").innerHTML;
+			document.getElementById("whouseno").readOnly = false;
 			document.getElementById("whouseno").value = null;
 			document.getElementById("whousenm").innerHTML = null;
 			document.getElementById("whousedescription").innerHTML = null;

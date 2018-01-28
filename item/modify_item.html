@@ -20,7 +20,7 @@
 				<tr><td>物料概述</td><td><input type="text" name="itemdescription" id="itemdescription" onchange="check_200(document.getElementById('itemdescription').value)"></td></tr>
 				<tr><td>備註</td><td><input type="text" name="itemmemo" id="itemmemo" onchange="check_200(document.getElementById('itemmemo').value)"></td></tr>
 			</table>
-			<button id="modify_item" onclick="modify_item()" style="display: none;">確定修改</button>
+			<button id="modify_item" onclick="modify_item()" style="visibility: hidden;">確定修改</button>
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
@@ -49,7 +49,7 @@
 						document.getElementById("itemnm").value = data.itemnm;
 						document.getElementById("itemdescription").value = data.scription;
 						document.getElementById("itemmemo").value = data.memo;
-						document.getElementById("modify_item").style.display = '';
+						document.getElementById("modify_item").style.visibility = 'visible';
 					}
 					else {
 						alert(data.message);
@@ -57,7 +57,7 @@
 						document.getElementById("itemnm").value = '';
 						document.getElementById("itemdescription").value = '';
 						document.getElementById("itemmemo").value = '';
-						document.getElementById("modify_item").style.display = 'none';
+						document.getElementById("modify_item").style.visibility = 'hidden';
 					}
 				}
 			}
@@ -98,6 +98,7 @@
 			document.getElementById("itemnm").value = null;
 			document.getElementById("itemdescription").value = null;
 			document.getElementById("itemmemo").value = null;
+			document.getElementById("modify_item").style.visibility = 'hidden';
 		}
 	</script>
 </html>

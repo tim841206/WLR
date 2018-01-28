@@ -2,7 +2,7 @@
 if (isset($_GET['module']) || isset($_POST['module'])) {
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if ($_POST['module'] == 'whouse') {
-			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_empty', 'check_delete', 'recover'))) {
+			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_empty', 'check_exist', 'check_delete', 'recover'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);

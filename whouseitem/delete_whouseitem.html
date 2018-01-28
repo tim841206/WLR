@@ -16,11 +16,13 @@
 		<div id="Main">
 			<table>
 				<tr><td>倉庫編號</td><td><input type="text" name="whouseno" id="whouseno" onchange="delete_whouseitem_whouseno()"></td></tr>
-				<tr><td>物料編號</td><td><input type="text" name="itemno" id="itemno" style="display: none;" onchange="delete_whouseitem_itemno()"></td></tr>
-				<tr><td>概述</td><td><span id="whouseitemamt" style="display: none;"></span></td></tr>
-				<tr><td>備註</td><td><span id="whouseitemmemo" style="display: none;"></span></td></tr>
+				<tr><td>物料編號</td><td><input type="text" name="itemno" id="itemno" style="visibility: hidden;" onchange="delete_whouseitem_itemno()"></td></tr>
+				<tr><td>數量</td><td><span id="whouseitemamt" style="visibility: hidden;"></span></td></tr>
+				<tr><td>運送權</td><td><span id="logistic" style="visibility: hidden;"></span></td></tr>
+				<tr><td>請求權</td><td><span id="request" style="visibility: hidden;"></span></td></tr>
+				<tr><td>備註</td><td><span id="whouseitemmemo" style="visibility: hidden;"></span></td></tr>
 			</table>
-			<button id="delete_whouseitem" style="display: none;" onclick="delete_whouseitem()">確定刪除</button>
+			<button id="delete_whouseitem" style="visibility: hidden;" onclick="delete_whouseitem()">確定刪除</button>
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
@@ -28,7 +30,9 @@
 			<table>
 				<tr><td>倉庫編號</td><td><span id="Lastwhouseno"></span></td></tr>
 				<tr><td>物料編號</td><td><span id="Lastitemno"></span></td></tr>
-				<tr><td>概述</td><td><span id="Lastwhouseitemamt"></span></td></tr>
+				<tr><td>數量</td><td><span id="Lastwhouseitemamt"></span></td></tr>
+				<tr><td>運送權</td><td><span id="Lastlogistic"></span></td></tr>
+				<tr><td>請求權</td><td><span id="Lastrequest"></span></td></tr>
 				<tr><td>備註</td><td><span id="Lastwhouseitemmemo"></span></td></tr>
 			</table>
 		</div>
@@ -46,12 +50,13 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'ok') {
-						document.getElementById("itemno").style.display = '';
-						delete_whouseitem_itemno();
+						document.getElementById("whouseno").readOnly = true;
+						document.getElementById("itemno").style.visibility = 'visible';
 					}
 					else {
 						alert(data.message);
-						document.getElementById("itemno").style.display = 'none';
+						document.getElementById("whouseno").readOnly = false;
+						document.getElementById("itemno").style.display = 'hidden';
 					}
 				}
 			}
@@ -70,19 +75,29 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'ok') {
+						document.getElementById("itemno").readOnly = true;
 						document.getElementById("whouseitemamt").innerHTML = data.amt;
+						document.getElementById("logistic").innerHTML = data.logistic;
+						document.getElementById("request").innerHTML = data.request;
 						document.getElementById("whouseitemmemo").innerHTML = data.memo;
-						document.getElementById("whouseitemamt").style.display = '';
-						document.getElementById("whouseitemmemo").style.display = '';
-						document.getElementById("delete_whouseitem").style.display = '';
+						document.getElementById("whouseitemamt").style.visibility = 'visible';
+						document.getElementById("logistic").style.visibility = 'visible';
+						document.getElementById("request").style.visibility = 'visible';
+						document.getElementById("whouseitemmemo").style.visibility = 'visible';
+						document.getElementById("delete_whouseitem").style.visibility = 'visible';
 					}
 					else {
 						alert(data.message);
+						document.getElementById("itemno").readOnly = false;
 						document.getElementById("whouseitemamt").innerHTML = '';
+						document.getElementById("logistic").innerHTML = '0';
+						document.getElementById("request").innerHTML = '0';
 						document.getElementById("whouseitemmemo").innerHTML = '';
-						document.getElementById("whouseitemamt").style.display = 'none';
-						document.getElementById("whouseitemmemo").style.display = 'none';
-						document.getElementById("delete_whouseitem").style.display = 'none';
+						document.getElementById("whouseitemamt").style.visibility = 'hidden';
+						document.getElementById("logistic").style.visibility = 'hidden';
+						document.getElementById("request").style.visibility = 'hidden';
+						document.getElementById("whouseitemmemo").style.visibility = 'hidden';
+						document.getElementById("delete_whouseitem").style.visibility = 'hidden';
 					}
 				}
 			}
@@ -102,7 +117,14 @@
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'Success') {
 						alert("成功刪除");
-						location.reload();
+						document.getElementById("Last").style.visibility = 'visible';
+						document.getElementById("Lastwhouseno").innerHTML = document.getElementById("whouseno").value;
+						document.getElementById("Lastitemno").innerHTML = document.getElementById("itemno").value;
+						document.getElementById("Lastwhouseitemamt").innerHTML = document.getElementById("whouseitemamt").innerHTML;
+						document.getElementById("Lastlogistic").innerHTML = document.getElementById("logistic").innerHTML;
+						document.getElementById("Lastrequest").innerHTML = document.getElementById("request").innerHTML;
+						document.getElementById("Lastwhouseitemmemo").innerHTML = document.getElementById("whouseitemmemo").innerHTML;
+						Refresh();
 					}
 					else {
 						alert(data.message);
@@ -113,10 +135,19 @@
 
 		function Refresh() {
 			document.getElementById("whouseno").readOnly = false;
+			document.getElementById("itemno").readOnly = false;
 			document.getElementById("whouseno").value = null;
-			document.getElementById("whousenm").innerHTML = null;
-			document.getElementById("whousedescription").innerHTML = null;
-			document.getElementById("whousememo").innerHTML = null;
+			document.getElementById("itemno").value = null;
+			document.getElementById("whouseitemamt").innerHTML = '';
+			document.getElementById("logistic").innerHTML = '0';
+			document.getElementById("request").innerHTML = '0';
+			document.getElementById("whouseitemmemo").innerHTML = '';
+			document.getElementById("itemno").style.visibility = 'hidden';
+			document.getElementById("whouseitemamt").style.visibility = 'hidden';
+			document.getElementById("logistic").style.visibility = 'hidden';
+			document.getElementById("request").style.visibility = 'hidden';
+			document.getElementById("whouseitemmemo").style.visibility = 'hidden';
+			document.getElementById("delete_whouseitem").style.visibility = 'hidden';
 		}
 	</script>
 </html>

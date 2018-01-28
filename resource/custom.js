@@ -23,10 +23,8 @@ function check_200(text) {
 }
 
 function check_nonnegative(text) {
-	var reg = "^\\d+$";
-	var result = reg.test(Number(text));
-	if (result == false) {
-		alert('請輸入非負整數');
+	if (Number(text) < 0) {
+		alert('請輸入非負數');
 	}
 }
 

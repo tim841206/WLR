@@ -20,7 +20,7 @@
 				<tr><td>倉庫概述</td><td><span id="whousedescription"></span></td></tr>
 				<tr><td>備註</td><td><span id="whousememo"></span></td></tr>
 			</table>
-			<button id="recover_whouse" onclick="recover_whouse()" style="display: none;">確定恢復</button>
+			<button id="recover_whouse" onclick="recover_whouse()" style="visibility: hidden;">確定恢復</button>
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
@@ -49,7 +49,7 @@
 						document.getElementById("whousenm").innerHTML = data.whousenm;
 						document.getElementById("whousedescription").innerHTML = data.description;
 						document.getElementById("whousememo").innerHTML = data.memo;
-						document.getElementById("recover_whouse").style.display = '';
+						document.getElementById("recover_whouse").style.visibility = 'visible';
 					}
 					else {
 						alert(data.message);
@@ -57,7 +57,7 @@
 						document.getElementById("whousenm").innerHTML = '';
 						document.getElementById("whousedescription").innerHTML = '';
 						document.getElementById("whousememo").innerHTML = '';
-						document.getElementById("recover_whouse").style.display = 'none';
+						document.getElementById("recover_whouse").style.visibility = 'hidden';
 					}
 				}
 			}
@@ -74,7 +74,7 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'Success') {
-						alert("成功刪除");
+						alert("成功恢復");
 						document.getElementById("Last").style.visibility = 'visible';
 						document.getElementById("Lastwhouseno").innerHTML = document.getElementById("whouseno").value;
 						document.getElementById("Lastwhousenm").innerHTML = document.getElementById("whousenm").innerHTML;
@@ -95,6 +95,7 @@
 			document.getElementById("whousenm").innerHTML = null;
 			document.getElementById("whousedescription").innerHTML = null;
 			document.getElementById("whousememo").innerHTML = null;
+			document.getElementById("recover_whouse").style.visibility = 'hidden';
 		}
 	</script>
 </html>
