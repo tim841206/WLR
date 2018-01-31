@@ -106,15 +106,24 @@ function create($content) {
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
 		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
 		else {
-			date_default_timezone_set('Asia/Taipei');
-			$date = date("Y-m-d H:i:s");
-			$sql2 = "INSERT INTO ITEM (ITEMNO, ITEMNM, DESCRIPTION, MEMO, CREATETIME, UPDATETIME) VALUES ($itemno, $itemnm, $itemdescription, $itemmemo, $date, $date)";
-			if (mysql_query($sql2)) {
-				return 'Success';
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno");
+			if ($sql2 != false && mysql_num_rows($sql2) > 0) {
+				return 'Occupied item';
 			}
 			else {
-				return 'Database operation error';
+				date_default_timezone_set('Asia/Taipei');
+				$date = date("Y-m-d H:i:s");
+				$sql3 = "INSERT INTO ITEM (ITEMNO, ITEMNM, DESCRIPTION, MEMO, CREATETIME, UPDATETIME) VALUES ($itemno, $itemnm, $itemdescription, $itemmemo, $date, $date)";
+				if (mysql_query($sql3)) {
+					return 'Success';
+				}
+				else {
+					return 'Database operation error';
+				}
 			}
 		}
 	}
@@ -160,15 +169,24 @@ function modify($content) {
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
 		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
 		else {
-			date_default_timezone_set('Asia/Taipei');
-			$date = date("Y-m-d H:i:s");
-			$sql2 = "UPDATE ITEM SET ITEMNM=$itemnm, DESCRIPTION=$itemdescription, MEMO=$itemmemo, UPDATETIME=$date WHERE ITEMNO=$itemno";
-			if (mysql_query($sql2)) {
-				return 'Success';
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=1");
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'Unfound item';
 			}
 			else {
-				return 'Database operation error';
+				date_default_timezone_set('Asia/Taipei');
+				$date = date("Y-m-d H:i:s");
+				$sql3 = "UPDATE ITEM SET ITEMNM=$itemnm, DESCRIPTION=$itemdescription, MEMO=$itemmemo, UPDATETIME=$date WHERE ITEMNO=$itemno";
+				if (mysql_query($sql3)) {
+					return 'Success';
+				}
+				else {
+					return 'Database operation error';
+				}
 			}
 		}
 	}
@@ -198,6 +216,9 @@ function delete($content) {
 		$fetch1 = mysql_fetch_array($sql1);
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
 		}
 		else {
 			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=1");
@@ -243,6 +264,9 @@ function query($content) {
 		$fetch1 = mysql_fetch_array($sql1);
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A' && $fetch1['AUTHORITY'] != 'B') {
+			return 'No authority';
 		}
 		else {
 			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=1");
@@ -356,6 +380,9 @@ function recover($content) {
 		$fetch1 = mysql_fetch_array($sql1);
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
 		}
 		else {
 			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=0");

@@ -28,6 +28,25 @@ function check_nonnegative(text) {
 	}
 }
 
+function logout() {
+	var request = new XMLHttpRequest();
+	request.open("POST", "index.php");
+	var data = "module=user&event=logout";
+	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	request.send(data);
+	request.onreadystatechange = function() {
+		if (request.readyState === 4 && request.status === 200) {
+			var data = JSON.parse(request.responseText);
+			if (data.message == 'Success') {
+				location.assign('index.php');
+			}
+			else {
+				alert(data.message);
+			}
+		}
+	}
+}
+
 function create_logistic() {
 
 }

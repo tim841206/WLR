@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="倉儲與運輸物流系統">
+		<meta name="author" content="冷俊瑩">
+		<script src="resource/custom.js"></script>
+		<title>倉儲與運輸物流系統</title>
+		<header>
+			<h1>倉儲與運輸物流系統</h1>
+		</header>
+	</head>
+	<body onload="time()" style="text-align: center;">
+		<h3>現在時間：<span id="now"></span></h3>
+		<div style="text-align: center;">
+			<h1>登入</h1>
+			<table align="center">
+				<tr><td>帳號</td><td><input type="text" name="account" id="account"></td></tr>
+				<tr><td>密碼</td><td><input type="password" name="password" id="password"></td></tr>
+			</table>
+			<br>
+			<button onclick="login()">登入</button>
+		</div>
+	</body>
+	<script type="text/javascript">
+		function login() {
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var account = document.getElementById("account").value;
+			var password = document.getElementById("password").value;
+			var data = "module=user&event=login&account=" + account + "&password=" + password;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						location.assign(data.content);
+					}
+					else {
+						alert(data.message);
+					}
+				}
+			}
+		}
+	</script>
+</html>

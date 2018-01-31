@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="倉儲與運輸物流系統">
+	<meta name="author" content="冷俊瑩">
+	<link rel="stylesheet" href="resource/bootstrap.min.css">
+	<link rel="stylesheet" href="resource/custom.css">
+	<script src="resource/jquery.min.js"></script>
+	<script src="resource/bootstrap.min.js"></script>
+	<script src="resource/custom.js"></script>
+	<title>倉儲與運輸物流系統</title>
+	<header>
+		<h1 style="text-align: center;">倉儲與運輸物流系統</h1>
+	</header>
+</head>
+<body>
+	<div class="container">
+		<button onclick="logout()">登出</button>
+		<ul class="nav nav-tabs nav-justified">
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">倉庫主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('index.php?module=whouse&operate=create')">新增倉庫</a></li>
+				<li><a onclick="location.assign('index.php?module=whouse&operate=modify')">修改倉庫</a></li>
+				<li><a onclick="location.assign('index.php?module=whouse&operate=delete')">刪除倉庫</a></li>
+				<li><a onclick="location.assign('index.php?module=whouse&operate=recover')">恢復倉庫</a></li>
+				<li><a onclick="location.assign('index.php?module=whouse&operate=search')">查詢倉庫</a></li>
+				<li><a onclick="location.assign('index.php?module=whouse&operate=export')">輸出倉庫</a></li>
+			</ul>
+			</li>
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">物料主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('index.php?module=item&operate=create')">新增物料</a></li>
+				<li><a onclick="location.assign('index.php?module=item&operate=modify')">修改物料</a></li>
+				<li><a onclick="location.assign('index.php?module=item&operate=delete')">刪除物料</a></li>
+				<li><a onclick="location.assign('index.php?module=item&operate=recover')">恢復物料</a></li>
+				<li><a onclick="location.assign('index.php?module=item&operate=search')">查詢物料</a></li>
+				<li><a onclick="location.assign('index.php?module=item&operate=export')">輸出物料</a></li>
+			</ul>
+			</li>
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">倉庫物料主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('index.php?module=whouseitem&operate=create')">新增倉庫物料</a></li>
+				<li><a onclick="location.assign('index.php?module=whouseitem&operate=modify')">修改倉庫物料</a></li>
+				<li><a onclick="location.assign('index.php?module=whouseitem&operate=delete')">刪除倉庫物料</a></li>
+				<li><a onclick="location.assign('index.php?module=whouseitem&operate=recover')">恢復倉庫物料</a></li>
+				<li><a onclick="location.assign('index.php?module=whouseitem&operate=search')">查詢倉庫物料</a></li>
+				<li><a onclick="location.assign('index.php?module=whouseitem&operate=export')">輸出倉庫物料</a></li>
+			</ul>
+			</li>
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">物流主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('index.php?module=logistic&operate=create')">新增物流</a></li>
+				<li><a onclick="location.assign('index.php?module=logistic&operate=waiting')">待辦物流</a></li>
+				<li><a onclick="location.assign('index.php?module=logistic&operate=search')">查詢物流</a></li>
+				<li><a onclick="location.assign('index.php?module=logistic&operate=export')">輸出物流</a></li>
+			</ul>
+			</li>
+			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown">請求主檔維護<span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li><a onclick="location.assign('index.php?module=request&operate=create')">新增請求</a></li>
+				<li><a onclick="location.assign('index.php?module=request&operate=waiting')">待辦請求</a></li>
+				<li><a onclick="location.assign('index.php?module=request&operate=search')">查詢請求</a></li>
+				<li><a onclick="location.assign('index.php?module=request&operate=export')">輸出請求</a></li>
+			</ul>
+			</li>
+		</ul>
+	</div>
+</body>
