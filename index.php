@@ -1,5 +1,58 @@
 <?php
-if (isset($_POST['module'])) {
+if (isset($_GET['module']) && isset($_GET['operate'])) {
+	if ($_GET['module'] == 'whouse') {
+		if (in_array($_GET['operate'], array('create', 'modify', 'delete', 'recover', 'search', 'export'))) {
+			include_once('view/whouse/'.$_GET['operate'].'_whouse.html');
+		}
+		else {
+			find_current();
+		}
+	}
+	elseif ($_GET['module'] == 'item') {
+		if (in_array($_GET['operate'], array('create', 'modify', 'delete', 'recover', 'search', 'export'))) {
+			include_once('view/item/'.$_GET['operate'].'_item.html');
+		}
+		else {
+			find_current();
+		}
+	}
+	elseif ($_GET['module'] == 'whouseitem') {
+		if (in_array($_GET['operate'], array('create', 'modify', 'delete', 'recover', 'search', 'export'))) {
+			include_once('view/whouseitem/'.$_GET['operate'].'_whouseitem.html');
+		}
+		else {
+			find_current();
+		}
+	}
+	elseif ($_GET['module'] == 'logistic') {
+		if (in_array($_GET['operate'], array('create', 'waiting', 'search', 'export'))) {
+			include_once('view/logistic/'.$_GET['operate'].'_logistic.html');
+		}
+		else {
+			find_current();
+		}
+	}
+	elseif ($_GET['module'] == 'request') {
+		if (in_array($_GET['operate'], array('create', 'waiting', 'search', 'export'))) {
+			include_once('view/request/'.$_GET['operate'].'_request.html');
+		}
+		else {
+			find_current();
+		}
+	}
+	elseif ($_GET['module'] == 'user') {
+		if (in_array($_GET['operate'], array('change_password', 'change_authority'))) {
+			include_once('view/user/'.$_GET['operate'].'.html');
+		}
+		else {
+			find_current();
+		}
+	}
+	else {
+		find_current();
+	}
+}
+elseif (isset($_POST['module'])) {
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if ($_POST['module'] == 'whouse') {
 			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_empty', 'check_exist', 'check_delete', 'recover'))) {
@@ -57,19 +110,8 @@ if (isset($_POST['module'])) {
 				if ($return['message'] == 'Success') {
 					setcookie('account', $_POST['account']);
 					setcookie('token', $return['token']);
-					if ($return['authority'] == 'A') {
-						echo json_encode(array('message' => $return['message'], 'content' => 'index.html'));
-					}
-					elseif ($return['authority'] == 'B') {
-						echo json_encode(array('message' => $return['message'], 'content' => 'index.html'));
-					}
-					elseif ($return['authority'] == 'C') {
-						echo json_encode(array('message' => $return['message'], 'content' => 'viewer.html'));
-					}
 				}
-				else {
-					echo json_encode(array('message' => $return['message']));
-				}
+				echo json_encode(array('message' => $return['message']));
 			}
 			elseif ($_POST['event'] == 'logout') {
 				$id = array('account' => $_COOKIE['account']);
@@ -78,11 +120,8 @@ if (isset($_POST['module'])) {
 				if ($return['message'] == 'Success') {
 					unset($_COOKIE['account']);
 					unset($_COOKIE['token']);
-					echo json_encode(array('message' => $return['message']));
 				}
-				else {
-					echo json_encode(array('message' => $return['message']));
-				}
+				echo json_encode(array('message' => $return['message']));
 			}
 			elseif ($_POST['event'] == 'logon') {
 				echo curl_post($_POST, $_POST['module']);
@@ -106,6 +145,14 @@ if (isset($_POST['module'])) {
 }
 
 elseif (isset($_COOKIE['account']) && isset($_COOKIE['token'])) {
+	find_current();
+}
+
+else {
+	include_once("view/user/entry.html");
+}
+
+function find_current() {
 	$return = json_decode(curl_post(array('module' => 'user', 'event' => 'get_auth', 'account' => $_COOKIE['account'], 'token' => $_COOKIE['token']), 'user'), true);
 	if ($return['message'] == 'Success') {
 		if ($return['authority'] == 'A') {
@@ -121,11 +168,8 @@ elseif (isset($_COOKIE['account']) && isset($_COOKIE['token'])) {
 	else {
 		unset($_COOKIE['account']);
 		unset($_COOKIE['token']);
-		include_once("view/user/login.html");
+		include_once("view/user/entry.html");
 	}
-}
-else {
-	include_once("view/user/login.html");
 }
 
 function curl_post($post, $module) {

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="倉儲與運輸物流系統">
+		<meta name="author" content="冷俊瑩">
+		<link rel="stylesheet" href="resource/bootstrap.min.css">
+		<link rel="stylesheet" href="resource/custom.css">
+		<script src="resource/jquery.min.js"></script>
+		<script src="resource/bootstrap.min.js"></script>
+		<script src="resource/custom.js"></script>
+		<title>倉儲與運輸物流系統</title>
+		<header>
+			<h1>倉儲與運輸物流系統</h1>
+		</header>
+	</head>
+	<body onload="time();" style="text-align: center;">
+		<h3>現在時間：<span id="now"></span></h3>
+		<div class="container">
+			<ul class="nav nav-tabs nav-justified">
+				<li class="active"><a data-toggle="tab" href="#menu1">登入</a></li>
+				<li><a data-toggle="tab" href="#menu2">註冊</a></li>
+			</ul>
+			<div class="tab-content">
+				<div id="menu1" class="tab-pane active">
+					<h1>登入</h1>
+					<table align="center">
+						<tr><td>帳號</td><td><input type="text" name="account" id="account"></td></tr>
+						<tr><td>密碼</td><td><input type="password" name="password" id="password"></td></tr>
+					</table>
+					<br>
+					<button onclick="login()">登入</button>
+				</div>
+				<div id="menu2" class="tab-pane fade">
+					<h1>註冊</h1>
+					<table align="center">
+						<tr><td>帳號</td><td><input type="text" name="account" id="account"></td></tr>
+						<tr><td>密碼</td><td><input type="password" name="password" id="password"></td></tr>
+						<tr><td>再次輸入密碼</td><td><input type="password" name="password2" id="password2"></td></tr>
+						<tr><td>姓名</td><td><input type="text" name="name" id="name"></td></tr>
+						<tr><td>電話</td><td><input type="text" name="phone" id="phone"></td></tr>
+						<tr><td>信箱</td><td><input type="text" name="email" id="email"></td></tr>
+					</table>
+					<br>
+					<button onclick="logon()">註冊</button>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
