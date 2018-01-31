@@ -15,254 +15,59 @@
 		<p>現在時間：<span id="now"></span></p>
 		<div id="Main">
 			<table>
-				<tr><td>目標倉庫編號</td><td><input type="text" name="whouseno" id="whouseno" onchange="create_logistic_whouseno()"></td></tr>
-				<tr><td>備註</td><td><input type="text" name="memo" id="memo" onchange="check_200(document.getElementById('memo').value)"></td></tr>
+				<tr><td>運送方</td><td><input type="text" name="sender" id="sender"></td></tr>
+				<tr><td>接收方</td><td><input type="text" name="receiver" id="receiver"></td></tr>
+				<tr><td>相關倉庫</td><td><input type="text" name="whouse" id="whouse"></td></tr>
+				<tr><td>相關物料</td><td><input type="text" name="item" id="item"></td></tr>
+				<tr><td>建立時間</td><td><input type="time" name="createtimestart" id="createtimestart"></td><td>至</td><td><input type="time" name="createtimeend" id="createtimeend"></td></tr>
+				<tr><td>結束時間</td><td><input type="time" name="closetimestart" id="closetimestart"></td><td>至</td><td><input type="time" name="closetimeend" id="closetimeend"></td></tr>
 			</table>
-			<table id="itemContent">
-				<select id="search_logistic_sender">
-					<option></option>
-				</select>
-				<select id="search_logistic_receiver">
-					<option></option>
-				</select>
-				<select id="search_logistic_whouse">
-					<option></option>
-				</select>
-				<select id="search_logistic_item">
-					<option></option>
-				</select>
-				<input type="time" name="search_logistic_createtimestart">
-				<input type="time" name="search_logistic_createtimeend">
-				<input type="time" name="search_logistic_closetimestart">
-				<input type="time" name="search_logistic_closetimeend">
-				<tr><td>物料編號</td><td>物料名稱</td><td>物料數量</td></tr>
-				<tr id="item1"><td><input type="text" name="itemno1" id="itemno1" onchange="create_logistic_itemno()"></td><td><span id="itemnm1"></span></td><td><input type="text" name="itemamt1" id="itemamt1" value="0" onchange="create_logistic_itemamt()"></td></tr>
-				<tr id="item2" style="visibility: hidden;"><td><input type="text" name="itemno2" id="itemno2" onchange="create_logistic_itemno()"></td><td><span id="itemnm2"></span></td><td><input type="text" name="itemamt2" id="itemamt2" value="0" onchange="create_logistic_itemamt()"></td></tr>
-				<tr id="item3" style="visibility: hidden;"><td><input type="text" name="itemno3" id="itemno3" onchange="create_logistic_itemno()"></td><td><span id="itemnm3"></span></td><td><input type="text" name="itemamt3" id="itemamt3" value="0" onchange="create_logistic_itemamt()"></td></tr>
-				<tr id="item4" style="visibility: hidden;"><td><input type="text" name="itemno4" id="itemno4" onchange="create_logistic_itemno()"></td><td><span id="itemnm4"></span></td><td><input type="text" name="itemamt4" id="itemamt4" value="0" onchange="create_logistic_itemamt()"></td></tr>
-				<tr id="item5" style="visibility: hidden;"><td><input type="text" name="itemno5" id="itemno5" onchange="create_logistic_itemno()"></td><td><span id="itemnm5"></span></td><td><input type="text" name="itemamt5" id="itemamt5" value="0" onchange="create_logistic_itemamt()"></td></tr>
-				<tr id="item6" style="visibility: hidden;"><td><input type="text" name="itemno6" id="itemno6" onchange="create_logistic_itemno()"></td><td><span id="itemnm6"></span></td><td><input type="text" name="itemamt6" id="itemamt6" value="0" onchange="create_logistic_itemamt()"></td></tr>
-				<tr id="item7" style="visibility: hidden;"><td><input type="text" name="itemno7" id="itemno7" onchange="create_logistic_itemno()"></td><td><span id="itemnm7"></span></td><td><input type="text" name="itemamt7" id="itemamt7" value="0" onchange="create_logistic_itemamt()"></td></tr>
-				<tr id="item8" style="visibility: hidden;"><td><input type="text" name="itemno8" id="itemno8" onchange="create_logistic_itemno()"></td><td><span id="itemnm8"></span></td><td><input type="text" name="itemamt8" id="itemamt8" value="0" onchange="create_logistic_itemamt()"></td></tr>
-				<tr id="item9" style="visibility: hidden;"><td><input type="text" name="itemno9" id="itemno9" onchange="create_logistic_itemno()"></td><td><span id="itemnm9"></span></td><td><input type="text" name="itemamt9" id="itemamt9" value="0" onchange="create_logistic_itemamt()"></td></tr>
-			</table>
-			<button id="create_logistic" style="visibility: hidden;" onclick="create_logistic()">確定新增</button>
+			<button id="search_logistic" onclick="search_logistic()">查詢</button>
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
 		<div id="Last">
-			<table>
-				<tr><td>目標倉庫編號</td><td><span id="Lastwhouseno"></span></td></tr>
-				<tr><td>備註</td><td><span id="Lastmemo"></span></td></tr>
-			</table>
-			<table>
-				<tr><td>物料編號</td><td>物料數量</td></tr>
-				<tr><td><span id="Lastitemno1"></span></td><td><span id="Lastitemnm1"></span></td><td><span id="Lastitemamt1"></span></td></tr>
-				<tr><td><span id="Lastitemno2"></span></td><td><span id="Lastitemnm2"></span></td><td><span id="Lastitemamt2"></span></td></tr>
-				<tr><td><span id="Lastitemno3"></span></td><td><span id="Lastitemnm3"></span></td><td><span id="Lastitemamt3"></span></td></tr>
-				<tr><td><span id="Lastitemno4"></span></td><td><span id="Lastitemnm4"></span></td><td><span id="Lastitemamt4"></span></td></tr>
-				<tr><td><span id="Lastitemno5"></span></td><td><span id="Lastitemnm5"></span></td><td><span id="Lastitemamt5"></span></td></tr>
-				<tr><td><span id="Lastitemno6"></span></td><td><span id="Lastitemnm6"></span></td><td><span id="Lastitemamt6"></span></td></tr>
-				<tr><td><span id="Lastitemno7"></span></td><td><span id="Lastitemnm7"></span></td><td><span id="Lastitemamt7"></span></td></tr>
-				<tr><td><span id="Lastitemno8"></span></td><td><span id="Lastitemnm8"></span></td><td><span id="Lastitemamt8"></span></td></tr>
-				<tr><td><span id="Lastitemno9"></span></td><td><span id="Lastitemnm9"></span></td><td><span id="Lastitemamt9"></span></td></tr>
-			</table>
 		</div>
 	</body>
 	<script type="text/javascript">
-		function create_logistic_whouseno() {
-			var whouseno = document.getElementById("whouseno").value;
+		function search_logistic() {
+			var sender = document.getElementById("sender").value;
+			var receiver = document.getElementById("receiver").value;
+			var whouse = document.getElementById("whouse").value;
+			var item = document.getElementById("item").value;
+			var createtimestart = document.getElementById("createtimestart").value;
+			var createtimeend = document.getElementById("createtimeend").value;
+			var closetimestart = document.getElementById("closetimestart").value;
+			var closetimeend = document.getElementById("closetimeend").value;
 
 			var request = new XMLHttpRequest();
 			request.open("POST", "index.php");
-			var data = "module=whouse&event=check_exist&whouseno=" + whouseno;
+			var data = "module=logistic&event=search&sender=" + sender + "&receiver=" + receiver + "&whouse=" + whouse + "&item=" + item + "&createtimestart=" + createtimestart + "&createtimeend=" + createtimeend + "&closetimestart=" + closetimestart + "&closetimeend=" + closetimeend;
 			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 			request.send(data);
 			request.onreadystatechange = function() {
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'ok') {
-						document.getElementById("whouseno").readOnly = true;
-						document.getElementById("itemContent").style.visibility = 'visible';
+						document.getElementById('Last').innerHTML = data.content;
 					}
 					else {
 						alert(data.message);
-						document.getElementById("whouseno").readOnly = false;
-						document.getElementById("itemContent").style.visibility = 'hidden';
-					}
-				}
-			}
-		}
-
-		function create_logistic_itemno() {
-			var whouseno = document.getElementById("whouseno").value;
-			var request = new XMLHttpRequest();
-			request.open("POST", "index.php");
-			var data = "module=logistic&event=check_itemno&whouseno=" + whouseno;
-			data = data + "&itemno1=" + document.getElementById("itemno1").value;
-			data = data + "&itemno2=" + document.getElementById("itemno2").value;
-			data = data + "&itemno3=" + document.getElementById("itemno3").value;
-			data = data + "&itemno4=" + document.getElementById("itemno4").value;
-			data = data + "&itemno5=" + document.getElementById("itemno5").value;
-			data = data + "&itemno6=" + document.getElementById("itemno6").value;
-			data = data + "&itemno7=" + document.getElementById("itemno7").value;
-			data = data + "&itemno8=" + document.getElementById("itemno8").value;
-			data = data + "&itemno9=" + document.getElementById("itemno9").value;
-			data = data + "&itemamt1=" + document.getElementById("itemamt1").value;
-			data = data + "&itemamt2=" + document.getElementById("itemamt2").value;
-			data = data + "&itemamt3=" + document.getElementById("itemamt3").value;
-			data = data + "&itemamt4=" + document.getElementById("itemamt4").value;
-			data = data + "&itemamt5=" + document.getElementById("itemamt5").value;
-			data = data + "&itemamt6=" + document.getElementById("itemamt6").value;
-			data = data + "&itemamt7=" + document.getElementById("itemamt7").value;
-			data = data + "&itemamt8=" + document.getElementById("itemamt8").value;
-			data = data + "&itemamt9=" + document.getElementById("itemamt9").value;
-			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			request.send(data);
-			request.onreadystatechange = function() {
-				if (request.readyState === 4 && request.status === 200) {
-					var data = JSON.parse(request.responseText);
-					if (data.message == 'ok') {
-						if (typeof data.itemnm1 != 'undefined') { document.getElementById("itemnm1").innerHTML = data.itemnm1; } else { document.getElementById("itemnm1").innerHTML = ''; }
-						if (typeof data.itemnm2 != 'undefined') { document.getElementById("itemnm2").innerHTML = data.itemnm2; } else { document.getElementById("itemnm2").innerHTML = ''; }
-						if (typeof data.itemnm3 != 'undefined') { document.getElementById("itemnm3").innerHTML = data.itemnm3; } else { document.getElementById("itemnm3").innerHTML = ''; }
-						if (typeof data.itemnm4 != 'undefined') { document.getElementById("itemnm4").innerHTML = data.itemnm4; } else { document.getElementById("itemnm4").innerHTML = ''; }
-						if (typeof data.itemnm5 != 'undefined') { document.getElementById("itemnm5").innerHTML = data.itemnm5; } else { document.getElementById("itemnm5").innerHTML = ''; }
-						if (typeof data.itemnm6 != 'undefined') { document.getElementById("itemnm6").innerHTML = data.itemnm6; } else { document.getElementById("itemnm6").innerHTML = ''; }
-						if (typeof data.itemnm7 != 'undefined') { document.getElementById("itemnm7").innerHTML = data.itemnm7; } else { document.getElementById("itemnm7").innerHTML = ''; }
-						if (typeof data.itemnm8 != 'undefined') { document.getElementById("itemnm8").innerHTML = data.itemnm8; } else { document.getElementById("itemnm8").innerHTML = ''; }
-						if (typeof data.itemnm9 != 'undefined') { document.getElementById("itemnm9").innerHTML = data.itemnm9; } else { document.getElementById("itemnm9").innerHTML = ''; }
-						document.getElementById("create_logistic").style.visibility = 'visible';
-					}
-					else {
-						alert(data.message);
-						document.getElementById("create_logistic").style.visibility = 'hidden';
-					}
-				}
-			}
-		}
-
-		function create_logistic_itemamt() {
-			var whouseno = document.getElementById("whouseno").value;
-			var request = new XMLHttpRequest();
-			request.open("POST", "index.php");
-			var data = "module=logistic&event=check_itemamt&whouseno=" + whouseno;
-			data = data + "&itemno1=" + document.getElementById("itemno1").value;
-			data = data + "&itemno2=" + document.getElementById("itemno2").value;
-			data = data + "&itemno3=" + document.getElementById("itemno3").value;
-			data = data + "&itemno4=" + document.getElementById("itemno4").value;
-			data = data + "&itemno5=" + document.getElementById("itemno5").value;
-			data = data + "&itemno6=" + document.getElementById("itemno6").value;
-			data = data + "&itemno7=" + document.getElementById("itemno7").value;
-			data = data + "&itemno8=" + document.getElementById("itemno8").value;
-			data = data + "&itemno9=" + document.getElementById("itemno9").value;
-			data = data + "&itemamt1=" + document.getElementById("itemamt1").value;
-			data = data + "&itemamt2=" + document.getElementById("itemamt2").value;
-			data = data + "&itemamt3=" + document.getElementById("itemamt3").value;
-			data = data + "&itemamt4=" + document.getElementById("itemamt4").value;
-			data = data + "&itemamt5=" + document.getElementById("itemamt5").value;
-			data = data + "&itemamt6=" + document.getElementById("itemamt6").value;
-			data = data + "&itemamt7=" + document.getElementById("itemamt7").value;
-			data = data + "&itemamt8=" + document.getElementById("itemamt8").value;
-			data = data + "&itemamt9=" + document.getElementById("itemamt9").value;
-			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			request.send(data);
-			request.onreadystatechange = function() {
-				if (request.readyState === 4 && request.status === 200) {
-					var data = JSON.parse(request.responseText);
-					if (data.message == 'ok') {
-						document.getElementById("create_logistic").style.visibility = 'visible';
-					}
-					else {
-						alert(data.message);
-						document.getElementById("create_logistic").style.visibility = 'hidden';
-					}
-				}
-			}
-		}
-
-		function create_logistic() {
-			var whouseno = document.getElementById("whouseno").value;
-			var memo = document.getElementById("memo").value;
-			var request = new XMLHttpRequest();
-			request.open("POST", "index.php");
-			var data = "module=logistic&event=create&whouseno=" + whouseno + "&memo=" + memo;
-			data = data + "&itemno1=" + document.getElementById("itemno1").value;
-			data = data + "&itemno2=" + document.getElementById("itemno2").value;
-			data = data + "&itemno3=" + document.getElementById("itemno3").value;
-			data = data + "&itemno4=" + document.getElementById("itemno4").value;
-			data = data + "&itemno5=" + document.getElementById("itemno5").value;
-			data = data + "&itemno6=" + document.getElementById("itemno6").value;
-			data = data + "&itemno7=" + document.getElementById("itemno7").value;
-			data = data + "&itemno8=" + document.getElementById("itemno8").value;
-			data = data + "&itemno9=" + document.getElementById("itemno9").value;
-			data = data + "&itemamt1=" + document.getElementById("itemamt1").value;
-			data = data + "&itemamt2=" + document.getElementById("itemamt2").value;
-			data = data + "&itemamt3=" + document.getElementById("itemamt3").value;
-			data = data + "&itemamt4=" + document.getElementById("itemamt4").value;
-			data = data + "&itemamt5=" + document.getElementById("itemamt5").value;
-			data = data + "&itemamt6=" + document.getElementById("itemamt6").value;
-			data = data + "&itemamt7=" + document.getElementById("itemamt7").value;
-			data = data + "&itemamt8=" + document.getElementById("itemamt8").value;
-			data = data + "&itemamt9=" + document.getElementById("itemamt9").value;
-			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			request.send(data);
-			request.onreadystatechange = function() {
-				if (request.readyState === 4 && request.status === 200) {
-					var data = JSON.parse(request.responseText);
-					if (data.message == 'ok') {
-						alert('成功新增');
-						document.getElementById("Lastwhouseno").innerHTML = document.getElementById("whouseno").value;
-						document.getElementById("Lastmemo").innerHTML = document.getElementById("memo").value;
-						for (var i = 1; i < 10; i++) {
-							if (document.getElementById("itemno"+i).value != '') {
-								document.getElementById("Lastitemno"+i).innerHTML = document.getElementById("itemno"+i).value;
-								document.getElementById("Lastitemnm"+i).innerHTML = document.getElementById("itemnm"+i).innerHTML;
-								document.getElementById("Lastitemamt"+i).innerHTML = document.getElementById("itemamt"+i).value;
-							}
-						}
-						Refresh()
-					}
-					else {
-						alert(data.message);
+						document.getElementById('Last').innerHTML = '';
 					}
 				}
 			}
 		}
 
 		function Refresh() {
-			document.getElementById("whouseno").readOnly = false;
-			document.getElementById("itemContent").style.visibility = 'hidden';
-			document.getElementById("whouseno").value = null;
-			document.getElementById("memo").value = null;
-			document.getElementById("itemno1").value = null;
-			document.getElementById("itemno2").value = null;
-			document.getElementById("itemno3").value = null;
-			document.getElementById("itemno4").value = null;
-			document.getElementById("itemno5").value = null;
-			document.getElementById("itemno6").value = null;
-			document.getElementById("itemno7").value = null;
-			document.getElementById("itemno8").value = null;
-			document.getElementById("itemno9").value = null;
-			document.getElementById("itemnm1").innerHTML = '';
-			document.getElementById("itemnm2").innerHTML = '';
-			document.getElementById("itemnm3").innerHTML = '';
-			document.getElementById("itemnm4").innerHTML = '';
-			document.getElementById("itemnm5").innerHTML = '';
-			document.getElementById("itemnm6").innerHTML = '';
-			document.getElementById("itemnm7").innerHTML = '';
-			document.getElementById("itemnm8").innerHTML = '';
-			document.getElementById("itemnm9").innerHTML = '';
-			document.getElementById("itemamt1").value = 0;
-			document.getElementById("itemamt2").value = 0;
-			document.getElementById("itemamt3").value = 0;
-			document.getElementById("itemamt4").value = 0;
-			document.getElementById("itemamt5").value = 0;
-			document.getElementById("itemamt6").value = 0;
-			document.getElementById("itemamt7").value = 0;
-			document.getElementById("itemamt8").value = 0;
-			document.getElementById("itemamt9").value = 0;
-			document.getElementById("create_logistic").style.visibility = 'hidden';
+			document.getElementById("sender").value = null;
+			document.getElementById("receiver").value = null;
+			document.getElementById("whouse").value = null;
+			document.getElementById("item").value = null;
+			document.getElementById("createtimestart").value = null;
+			document.getElementById("createtimeend").value = null;
+			document.getElementById("closetimestart").value = null;
+			document.getElementById("closetimeend").value = null;
 		}
 	</script>
 </html>

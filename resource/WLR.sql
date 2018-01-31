@@ -1,15 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.4
--- https://www.phpmyadmin.net/
+-- version 4.5.2
+-- http://www.phpmyadmin.net
 --
--- 主機: 127.0.0.1
--- 產生時間： 2018-01-31 07:12:34
--- 伺服器版本: 10.1.28-MariaDB
--- PHP 版本： 5.6.32
+-- 主機: localhost
+-- 產生時間： 2018 年 01 月 31 日 14:26
+-- 伺服器版本: 10.1.13-MariaDB
+-- PHP 版本： 5.6.21
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -19,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- 資料庫： `wlr`
+-- 資料庫： `WLR`
 --
 
 -- --------------------------------------------------------
@@ -168,7 +166,64 @@ CREATE TABLE `whouseitem` (
   `UPDATETIME` datetime NOT NULL,
   `ACTCODE` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-COMMIT;
+
+--
+-- 已匯出資料表的索引
+--
+
+--
+-- 資料表索引 `item`
+--
+ALTER TABLE `item`
+  ADD PRIMARY KEY (`ITEMNO`);
+
+--
+-- 資料表索引 `logistic`
+--
+ALTER TABLE `logistic`
+  ADD PRIMARY KEY (`LOGISTICNO`);
+
+--
+-- 資料表索引 `logisticitem`
+--
+ALTER TABLE `logisticitem`
+  ADD PRIMARY KEY (`LOGISTICNO`,`ITEMNO`);
+
+--
+-- 資料表索引 `request`
+--
+ALTER TABLE `request`
+  ADD PRIMARY KEY (`REQUESTNO`);
+
+--
+-- 資料表索引 `requestitem`
+--
+ALTER TABLE `requestitem`
+  ADD PRIMARY KEY (`REQUESTNO`,`ITEMNO`);
+
+--
+-- 資料表索引 `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`ACCOUNT`);
+
+--
+-- 資料表索引 `userwhouse`
+--
+ALTER TABLE `userwhouse`
+  ADD PRIMARY KEY (`ACCOUNT`,`WHOUSENO`);
+
+--
+-- 資料表索引 `whouse`
+--
+ALTER TABLE `whouse`
+  ADD PRIMARY KEY (`WHOUSENO`);
+
+--
+-- 資料表索引 `whouseitem`
+--
+ALTER TABLE `whouseitem`
+  ADD PRIMARY KEY (`WHOUSENO`,`ITEMNO`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -265,7 +265,7 @@ function auth($content) {
 				$sql4 = mysql_query("SELECT WHOUSENO FROM WHOUSE");
 				while ($fetch4 = mysql_fetch_array($sql4)) {
 					$whouseno = $fetch4['WHOUSENO'];
-					mysql_query("INSERT INTO USERWHOUSE (ACCOUNT, WHOUSENO) VALUES ($target, $whouseno)");
+					mysql_query("INSERT INTO USERWHOUSE (ACCOUNT, WHOUSENO) VALUES ('$target', '$whouseno')");
 				}
 				return 'Success';
 			}
@@ -323,7 +323,7 @@ function change_password($content) {
 	$password = $content['password'];
 	$password_new = $content['password_new'];
 	$password_new2 = $content['password_new2'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -377,7 +377,7 @@ function change_password($content) {
 function get_auth($content) {
 	$account = $content['account'];
 	$token = $content['token'];
-	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -401,8 +401,8 @@ function get_auth($content) {
 
 
 function search_account($account, $token, $index) {
-	$sql1 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$account' AND ACTCODE='1'");
-	$sql2 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$index' AND ACTCODE='1'");
+	$sql1 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$account' AND ACTCODE=1");
+	$sql2 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$index' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}

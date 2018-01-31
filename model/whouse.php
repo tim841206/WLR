@@ -115,19 +115,19 @@ function create($content) {
 			return 'No authority';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno");
+			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno'");
 			if ($sql2 != false && mysql_num_rows($sql2) > 0) {
 				return 'Occupied warehouse';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql3 = "INSERT INTO WHOUSE (WHOUSENO, WHOUSENM, DESCRIPTION, MEMO, CREATETIME, UPDATETIME) VALUES ($whouseno, $whousenm, $whousedescription, $whousememo, $date, $date)";
+				$sql3 = "INSERT INTO WHOUSE (WHOUSENO, WHOUSENM, DESCRIPTION, MEMO, CREATETIME, UPDATETIME) VALUES ('$whouseno', '$whousenm', '$whousedescription', '$whousememo', '$date', '$date')";
 				if (mysql_query($sql3)) {
 					$sql4 = mysql_query("SELECT * FROM USER WHERE ACTCODE=1");
 					while ($fetch4 = mysql_fetch_array($sql4)) {
 						$user = $fetch4['ACCOUNT'];
-						mysql_query("INSERT INTO USERWHOUSE (ACCOUNT, WHOUSENO) VALUES ($user, $whouseno)");
+						mysql_query("INSERT INTO USERWHOUSE (ACCOUNT, WHOUSENO) VALUES ('$user', '$whouseno')");
 					}
 					mysql_query("UPDATE USERWHOUSE SET AUTHORITY='A' WHERE ACCOUNT='$account'");
 					return 'Success';
@@ -186,14 +186,14 @@ function modify($content) {
 			return 'No authority';
 		}
 		else {
-			$sql3 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno AND ACTCODE=1");
+			$sql3 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno' AND ACTCODE=1");
 			if ($sql3 == false || mysql_num_rows($sql3) == 0) {
 				return 'Unfound warehouse';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql4 = "UPDATE WHOUSE SET WHOUSENM=$whousenm, DESCRIPTION=$whousedescription, MEMO=$whousememo, UPDATETIME=$date WHERE WHOUSENO=$whouseno";
+				$sql4 = "UPDATE WHOUSE SET WHOUSENM='$whousenm', DESCRIPTION='$whousedescription', MEMO='$whousememo', UPDATETIME='$date' WHERE WHOUSENO='$whouseno'";
 				if (mysql_query($sql4)) {
 					return 'Success';
 				}
@@ -236,14 +236,14 @@ function delete($content) {
 			return 'No authority';
 		}
 		else {
-			$sql3 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno AND ACTCODE=1");
+			$sql3 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno' AND ACTCODE=1");
 			if ($sql3 == false || mysql_num_rows($sql3) == 0) {
 				return 'Unfound warehouse';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql4 = "UPDATE WHOUSE SET ACTCODE=0, UPDATETIME=$date WHERE WHOUSENO=$whouseno";
+				$sql4 = "UPDATE WHOUSE SET ACTCODE=0, UPDATETIME='$date' WHERE WHOUSENO='$whouseno'";
 				if (mysql_query($sql4)) {
 					return 'Success';
 				}
@@ -286,7 +286,7 @@ function query($content) {
 			return 'No authority';
 		}
 		else {
-			$sql3 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno AND ACTCODE=1");
+			$sql3 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno' AND ACTCODE=1");
 			if ($sql3 == false || mysql_num_rows($sql3) == 0) {
 				return 'Unfound warehouse';
 			}
@@ -324,7 +324,7 @@ function check_empty($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno");
+			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno'");
 			if ($sql2 != false && mysql_num_rows($sql2) > 0) {
 				return 'Occupied warehouse';
 			}
@@ -361,7 +361,7 @@ function check_exist($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse';
 			}
@@ -398,7 +398,7 @@ function check_delete($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno AND ACTCODE=0");
+			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno' AND ACTCODE=0");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse';
 			}
@@ -441,14 +441,14 @@ function recover($content) {
 			return 'No authority';
 		}
 		else {
-			$sql3 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno AND ACTCODE=0");
+			$sql3 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno' AND ACTCODE=0");
 			if ($sql3 == false || mysql_num_rows($sql3) == 0) {
 				return 'Unfound warehouse';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql4 = "UPDATE WHOUSE SET ACTCODE=1, UPDATETIME=$date WHERE WHOUSENO=$whouseno";
+				$sql4 = "UPDATE WHOUSE SET ACTCODE=1, UPDATETIME='$date' WHERE WHOUSENO='$whouseno'";
 				if (mysql_query($sql4)) {
 					return 'Success';
 				}

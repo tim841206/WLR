@@ -2,7 +2,7 @@
 include_once("../resource/database.php");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-	if ($_POST['module'] == 'whouse') {
+	if ($_POST['module'] == 'logistic') {
 		if ($_POST['event'] == 'check_itemno') {
 			$message = check_itemno($_POST);
 			echo json_encode(array('message' => $message));
@@ -18,23 +18,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			echo json_encode(array('message' => $message));
 			return;
 		}
+		elseif ($_POST['event'] == 'waiting') {
+			$message = waiting($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
 		elseif ($_POST['event'] == 'accept') {
-			$message = check_empty($_POST);
+			$message = accept($_POST);
 			echo json_encode(array('message' => $message));
 			return;
 		}
 		elseif ($_POST['event'] == 'reject') {
-			$message = check_exist($_POST);
+			$message = reject($_POST);
 			echo json_encode(array('message' => $message));
 			return;
 		}
 		elseif ($_POST['event'] == 'check') {
-			$message = recover($_POST);
+			$message = check($_POST);
 			echo json_encode(array('message' => $message));
 			return;
 		}
-		elseif ($_POST['event'] == 'query') {
-			$message = recover($_POST);
+		elseif ($_POST['event'] == 'search') {
+			$message = search($_POST);
 			echo json_encode(array('message' => $message));
 			return;
 		}
@@ -97,7 +102,7 @@ function create($content) {
 		else {
 			date_default_timezone_set('Asia/Taipei');
 			$date = date("Y-m-d H:i:s");
-			$sql2 = "INSERT INTO WHOUSE (WHOUSENO, WHOUSENM, DESCRIPTION, MEMO, CREATETIME, UPDATETIME) VALUES ($whouseno, $whousenm, $whousedescription, $whousememo, $date, $date)";
+			$sql2 = "INSERT INTO WHOUSE (WHOUSENO, WHOUSENM, DESCRIPTION, MEMO, CREATETIME, UPDATETIME) VALUES ('$whouseno', '$whousenm', '$whousedescription', '$whousememo', '$date', '$date')";
 			if (mysql_query($sql2)) {
 				return 'Success';
 			}
@@ -134,7 +139,7 @@ function query($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO=$whouseno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM WHOUSE WHERE WHOUSENO='$whouseno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse';
 			}
@@ -152,7 +157,7 @@ function check_itemno($content) {
 	$whouseno = $content['whouseno'];
 	$target = $content['target'];
 	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
-	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO=$whouseno");
+	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -178,7 +183,7 @@ function check_itemno($content) {
 			return 'No authority';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$target");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$target'");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse';
 			}
@@ -186,7 +191,7 @@ function check_itemno($content) {
 				for ($i = 1; $i < 10; $i++) {
 					$itemno = 'itemno'.$i;
 					if (!empty($content[$itemno])) {
-						$sql3 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno AND ACTCODE=1");
+						$sql3 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 						if ($sql3 == false) {
 							return 'Unfound warehouse item' . $i;
 							break;
@@ -212,7 +217,7 @@ function check_itemamt($content) {
 	$whouseno = $content['whouseno'];
 	$target = $content['target'];
 	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
-	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO=$whouseno");
+	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -238,7 +243,7 @@ function check_itemamt($content) {
 			return 'No authority';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$target");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$target'");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse';
 			}
@@ -247,7 +252,7 @@ function check_itemamt($content) {
 					$itemno = 'itemno'.$i;
 					$itemamt = 'itemamt'.$i;
 					if (!empty($content[$itemno])) {
-						$sql3 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno AND ACTCODE=1");
+						$sql3 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 						if ($sql3 == false) {
 							return 'Unfound warehouse item' . $i;
 							break;

@@ -119,17 +119,17 @@ function create($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno'");
 			if ($sql2 != false && mysql_num_rows($sql2) > 0) {
 				return 'Occupied warehouse item';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql3 = "INSERT INTO WHOUSEITEM (WHOUSENO, ITEMNO, AMT, LOGISTIC, REQUEST, MEMO, CREATETIME, UPDATETIME) VALUES ($whouseno, $itemno, $whouseitemamt, $logistic, $request, $whouseitemmemo, $date, $date)";
+				$sql3 = "INSERT INTO WHOUSEITEM (WHOUSENO, ITEMNO, AMT, LOGISTIC, REQUEST, MEMO, CREATETIME, UPDATETIME) VALUES ('$whouseno', '$itemno', '$whouseitemamt', '$logistic', '$request', '$whouseitemmemo', '$date', '$date')";
 				if (mysql_query($sql3)) {
-					mysql_query("UPDATE WHOUSE SET WHOUSEAMT=WHOUSEAMT+$whouseitemamt WHERE WHOUSENO=$whouseno");
-					mysql_query("UPDATE ITEM SET ITEMAMT=ITEMAMT+$whouseitemamt WHERE ITEMNO=$itemno");
+					mysql_query("UPDATE WHOUSE SET WHOUSEAMT=WHOUSEAMT+'$whouseitemamt' WHERE WHOUSENO='$whouseno'");
+					mysql_query("UPDATE ITEM SET ITEMAMT=ITEMAMT+'$whouseitemamt' WHERE ITEMNO='$itemno'");
 					return 'Success';
 				}
 				else {
@@ -192,20 +192,20 @@ function modify($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse item';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql3 = "UPDATE WHOUSEITEM SET AMT=$whouseitemamt, LOGISTIC=$logistic, REQUEST=$request, MEMO=$whouseitemmemo, UPDATETIME=$date WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno";
-				$sql4 = mysql_query("SELECT AMT FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno");
+				$sql3 = "UPDATE WHOUSEITEM SET AMT='$whouseitemamt', LOGISTIC='$logistic', REQUEST='$request', MEMO='$whouseitemmemo', UPDATETIME='$date' WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno'";
+				$sql4 = mysql_query("SELECT AMT FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno'");
 				$fetch4 = mysql_fetch_array($sql4);
 				if (mysql_query($sql3)) {
 					$amount = $fetch4['AMT'];
-					mysql_query("UPDATE WHOUSE SET WHOUSEAMT=WHOUSEAMT-$amount+$whouseitemamt WHERE WHOUSENO=$whouseno");
-					mysql_query("UPDATE ITEM SET ITEMAMT=ITEMAMT-$amount+$whouseitemamt WHERE ITEMNO=$itemno");
+					mysql_query("UPDATE WHOUSE SET WHOUSEAMT=WHOUSEAMT-'$amount'+'$whouseitemamt' WHERE WHOUSENO='$whouseno'");
+					mysql_query("UPDATE ITEM SET ITEMAMT=ITEMAMT-'$amount'+'$whouseitemamt' WHERE ITEMNO='$itemno'");
 					return 'Success';
 				}
 				else {
@@ -249,20 +249,20 @@ function delete($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse item';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql3 = "UPDATE WHOUSEAMT SET AMT=0, ACTCODE=0, UPDATETIME=$date WHERE WHOUSENO=$whouseno AND ITEMNO='$itemno'";
-				$sql4 = mysql_query("SELECT AMT FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO='$itemno'");
+				$sql3 = "UPDATE WHOUSEAMT SET AMT=0, ACTCODE=0, UPDATETIME='$date' WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno'";
+				$sql4 = mysql_query("SELECT AMT FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno'");
 				$fetch4 = mysql_fetch_array($sql4);
 				if (mysql_query($sql3)) {
 					$amount = $fetch4['AMT'];
-					mysql_query("UPDATE WHOUSE SET WHOUSEAMT=WHOUSEAMT-$amount WHERE WHOUSENO=$whouseno");
-					mysql_query("UPDATE ITEM SET ITEMAMT=ITEMAMT-$amount WHERE ITEMNO=$itemno");
+					mysql_query("UPDATE WHOUSE SET WHOUSEAMT=WHOUSEAMT-'$amount' WHERE WHOUSENO='$whouseno'");
+					mysql_query("UPDATE ITEM SET ITEMAMT=ITEMAMT-'$amount' WHERE ITEMNO='$itemno'");
 					return 'Success';
 				}
 				else {
@@ -306,7 +306,7 @@ function query($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse item';
 			}
@@ -351,7 +351,7 @@ function check_item_empty($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno'");
 			if ($sql2 != false && mysql_num_rows($sql2) > 0) {
 				return 'Occupied warehouse item';
 			}
@@ -388,7 +388,7 @@ function check_whouse_exist($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse';
 			}
@@ -432,7 +432,7 @@ function check_item_exist($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse item';
 			}
@@ -469,7 +469,7 @@ function check_whouse_delete($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ACTCODE=0");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ACTCODE=0");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse';
 			}
@@ -513,7 +513,7 @@ function check_item_delete($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO=$whouseno AND ITEMNO=$itemno AND ACTCODE=0");
+			$sql2 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=0");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound warehouse item';
 			}

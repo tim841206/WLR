@@ -85,7 +85,7 @@ elseif (isset($_POST['module'])) {
 			}
 		}
 		elseif ($_POST['module'] == 'logistic') {
-			if (in_array($_POST['event'], array('create', 'accept', 'reject', 'check', 'search'))) {
+			if (in_array($_POST['event'], array('create', 'waiting', 'accept', 'reject', 'check', 'search'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token'], 'whouseno' => $_COOKIE['whouseno']);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);
@@ -95,8 +95,8 @@ elseif (isset($_POST['module'])) {
 			}
 		}
 		elseif ($_POST['module'] == 'request') {
-			if (in_array($_POST['event'], array('create', 'accept', 'reject', 'check', 'search'))) {
-				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
+			if (in_array($_POST['event'], array('create', 'waiting', 'accept', 'reject', 'check', 'search'))) {
+				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token'], 'whouseno' => $_COOKIE['whouseno']);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);
 			}

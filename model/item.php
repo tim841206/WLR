@@ -110,14 +110,14 @@ function create($content) {
 			return 'No authority';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno");
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO='$itemno'");
 			if ($sql2 != false && mysql_num_rows($sql2) > 0) {
 				return 'Occupied item';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql3 = "INSERT INTO ITEM (ITEMNO, ITEMNM, DESCRIPTION, MEMO, CREATETIME, UPDATETIME) VALUES ($itemno, $itemnm, $itemdescription, $itemmemo, $date, $date)";
+				$sql3 = "INSERT INTO ITEM (ITEMNO, ITEMNM, DESCRIPTION, MEMO, CREATETIME, UPDATETIME) VALUES ('$itemno', '$itemnm', '$itemdescription', '$itemmemo', '$date', '$date')";
 				if (mysql_query($sql3)) {
 					return 'Success';
 				}
@@ -173,14 +173,14 @@ function modify($content) {
 			return 'No authority';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO='$itemno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound item';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql3 = "UPDATE ITEM SET ITEMNM=$itemnm, DESCRIPTION=$itemdescription, MEMO=$itemmemo, UPDATETIME=$date WHERE ITEMNO=$itemno";
+				$sql3 = "UPDATE ITEM SET ITEMNM='$itemnm', DESCRIPTION='$itemdescription', MEMO='$itemmemo', UPDATETIME='$date' WHERE ITEMNO='$itemno'";
 				if (mysql_query($sql3)) {
 					return 'Success';
 				}
@@ -221,14 +221,14 @@ function delete($content) {
 			return 'No authority';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO='$itemno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound item';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql3 = "UPDATE ITEM SET ACTCODE=0, UPDATETIME=$date WHERE ITEMNO=$itemno";
+				$sql3 = "UPDATE ITEM SET ACTCODE=0, UPDATETIME='$date' WHERE ITEMNO='$itemno'";
 				if (mysql_query($sql3)) {
 					return 'Success';
 				}
@@ -269,7 +269,7 @@ function query($content) {
 			return 'No authority';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=1");
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO='$itemno' AND ACTCODE=1");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound item';
 			}
@@ -307,7 +307,7 @@ function check_empty($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno");
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO='$itemno'");
 			if ($sql2 != false && mysql_num_rows($sql2) > 0) {
 				return 'Occupied item';
 			}
@@ -344,7 +344,7 @@ function check_delete($content) {
 			return 'Wrong token';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=0");
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO='$itemno' AND ACTCODE=0");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound item';
 			}
@@ -385,14 +385,14 @@ function recover($content) {
 			return 'No authority';
 		}
 		else {
-			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO=$itemno AND ACTCODE=0");
+			$sql2 = mysql_query("SELECT * FROM ITEM WHERE ITEMNO='$itemno' AND ACTCODE=0");
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				return 'Unfound item';
 			}
 			else {
 				date_default_timezone_set('Asia/Taipei');
 				$date = date("Y-m-d H:i:s");
-				$sql3 = "UPDATE WHOUSE SET ACTCODE=1, UPDATETIME=$date WHERE ITEMNO=$itemno";
+				$sql3 = "UPDATE WHOUSE SET ACTCODE=1, UPDATETIME='$date' WHERE ITEMNO='$itemno'";
 				if (mysql_query($sql3)) {
 					return 'Success';
 				}
