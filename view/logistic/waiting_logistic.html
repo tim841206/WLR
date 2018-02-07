@@ -15,6 +15,8 @@
 		<p>現在時間：<span id="now"></span></p>
 		<div id="Main">
 		</div>
+		<div id="Last">
+		</div>
 	</body>
 	<script type="text/javascript">
 		function waiting() {
@@ -26,12 +28,34 @@
 			request.onreadystatechange = function() {
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
-					if (data.message == 'ok') {
+					if (data.message == 'Success') {
 						document.getElementById('Main').innerHTML = data.content;
+						document.getElementById('Last').innerHTML = '';
 					}
 					else {
 						alert(data.message);
 						document.getElementById('Main').innerHTML = '';
+						document.getElementById('Last').innerHTML = '';
+					}
+				}
+			}
+		}
+
+		function query(logisticno) {
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=logistic&event=query&logisticno=" + logisticno;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						document.getElementById('Last').innerHTML = data.content;
+					}
+					else {
+						alert(data.message);
+						document.getElementById('Last').innerHTML = '';
 					}
 				}
 			}
@@ -47,7 +71,8 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'ok') {
-						
+						alert("成功接受");
+						waiting();
 					}
 					else {
 						alert(data.message);
@@ -67,7 +92,8 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'ok') {
-						
+						alert("成功拒絕");
+						waiting();
 					}
 					else {
 						alert(data.message);
@@ -87,7 +113,8 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'ok') {
-						
+						alert("成功確認");
+						waiting();
 					}
 					else {
 						alert(data.message);

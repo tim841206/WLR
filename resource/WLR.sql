@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- 主機: localhost
--- 產生時間： 2018 年 01 月 31 日 14:26
+-- 產生時間： 2018 年 02 月 01 日 09:37
 -- 伺服器版本: 10.1.13-MariaDB
 -- PHP 版本： 5.6.21
 
@@ -47,7 +47,7 @@ CREATE TABLE `logistic` (
   `LOGISTICNO` varchar(20) COLLATE utf8_bin NOT NULL,
   `SENDER` varchar(20) COLLATE utf8_bin NOT NULL,
   `RECEIVER` varchar(20) COLLATE utf8_bin NOT NULL,
-  `STATE` varchar(1) COLLATE utf8_bin NOT NULL,
+  `STATE` varchar(1) COLLATE utf8_bin NOT NULL DEFAULT 'A',
   `MEMO` varchar(200) COLLATE utf8_bin NOT NULL,
   `CREATETIME` datetime NOT NULL,
   `UPDATETIME` datetime NOT NULL
@@ -96,6 +96,29 @@ CREATE TABLE `requestitem` (
 -- --------------------------------------------------------
 
 --
+-- 資料表結構 `system`
+--
+
+CREATE TABLE `system` (
+  `NEXT_LOGISTICNO` varchar(8) COLLATE utf8_bin NOT NULL,
+  `NEXT_REQUESTNO` varchar(8) COLLATE utf8_bin NOT NULL,
+  `NUM_USER` int(11) NOT NULL DEFAULT '0',
+  `NUM_WHOUSE` int(11) NOT NULL DEFAULT '0',
+  `NUM_ITEM` int(11) NOT NULL DEFAULT '0',
+  `NUM_LOGISTIC` int(11) NOT NULL DEFAULT '0',
+  `NUM_REQUEST` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- 資料表的匯出資料 `system`
+--
+
+INSERT INTO `system` (`NEXT_LOGISTICNO`, `NEXT_REQUESTNO`, `NUM_USER`, `NUM_WHOUSE`, `NUM_ITEM`, `NUM_LOGISTIC`, `NUM_REQUEST`) VALUES
+('L1000001', 'R1000001', 1, 0, 0, 0, 0);
+
+-- --------------------------------------------------------
+
+--
 -- 資料表結構 `user`
 --
 
@@ -117,7 +140,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`ACCOUNT`, `PASSWORD`, `TOKEN`, `USERNM`, `PHONE`, `EMAIL`, `AUTHORITY`, `CREATEDATE`, `LASTLOGINDATE`, `ACTCODE`) VALUES
-('tim841206', '900a5367f5e1', NULL, '冷俊瑩', '0922825881', 'a0922825881@gmail.com', 'A', '2018-01-30 00:00:00', '2018-01-30 00:00:00', 1);
+('tim841206', '900a5367f5e1', 'XSPkU3sAC5gO', '冷俊瑩', '0922825881', 'a0922825881@gmail.com', 'A', '2018-01-30 00:00:00', '2018-01-31 21:55:08', 1);
 
 -- --------------------------------------------------------
 

@@ -13,8 +13,9 @@
 	</head>
 	<body onload="time()">
 		<p>現在時間：<span id="now"></span></p>
-		<div id="Main">
+		<div>
 			<table>
+				<tr><td>請求編號</td><td><input type="text" name="requestno" id="requestno"></td></tr>
 				<tr><td>請求方</td><td><input type="text" name="requester" id="requester"></td></tr>
 				<tr><td>目標方</td><td><input type="text" name="target" id="target"></td></tr>
 				<tr><td>相關倉庫</td><td><input type="text" name="whouse" id="whouse"></td></tr>
@@ -26,11 +27,14 @@
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
+		<div id="Main">
+		</div>
 		<div id="Last">
 		</div>
 	</body>
 	<script type="text/javascript">
 		function search_request() {
+			var requestno = document.getElementById("requestno").value;
 			var requester = document.getElementById("requester").value;
 			var target = document.getElementById("target").value;
 			var whouse = document.getElementById("whouse").value;
@@ -42,13 +46,33 @@
 
 			var request = new XMLHttpRequest();
 			request.open("POST", "index.php");
-			var data = "module=request&event=search&requester=" + requester + "&target=" + target + "&whouse=" + whouse + "&item=" + item + "&createtimestart=" + createtimestart + "&createtimeend=" + createtimeend + "&closetimestart=" + closetimestart + "&closetimeend=" + closetimeend;
+			var data = "module=request&event=search&requestno=" + requestno + "&requester=" + requester + "&target=" + target + "&whouse=" + whouse + "&item=" + item + "&createtimestart=" + createtimestart + "&createtimeend=" + createtimeend + "&closetimestart=" + closetimestart + "&closetimeend=" + closetimeend;
 			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 			request.send(data);
 			request.onreadystatechange = function() {
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
-					if (data.message == 'ok') {
+					if (data.message == 'Success') {
+						document.getElementById('Main').innerHTML = data.content;
+					}
+					else {
+						alert(data.message);
+						document.getElementById('Main').innerHTML = '';
+					}
+				}
+			}
+		}
+
+		function view(requestno) {
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=request&event=view&requestno=" + requestno;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
 						document.getElementById('Last').innerHTML = data.content;
 					}
 					else {
@@ -60,6 +84,7 @@
 		}
 
 		function Refresh() {
+			document.getElementById("requestno").value = null;
 			document.getElementById("requester").value = null;
 			document.getElementById("target").value = null;
 			document.getElementById("whouse").value = null;
@@ -68,6 +93,8 @@
 			document.getElementById("createtimeend").value = null;
 			document.getElementById("closetimestart").value = null;
 			document.getElementById("closetimeend").value = null;
+			document.getElementById('Main').innerHTML = '';
+			document.getElementById('Last').innerHTML = '';
 		}
 	</script>
 </html>
