@@ -41,7 +41,7 @@ if (isset($_GET['module']) && isset($_GET['operate'])) {
 		}
 	}
 	elseif ($_GET['module'] == 'user') {
-		if (in_array($_GET['operate'], array('change_password', 'change_authority'))) {
+		if (in_array($_GET['operate'], array('change_whouse', 'change_password', 'change_authority'))) {
 			include_once('view/user/'.$_GET['operate'].'.html');
 		}
 		else {
@@ -110,6 +110,9 @@ elseif (isset($_POST['module'])) {
 				if ($return['message'] == 'Success') {
 					setcookie('account', $_POST['account']);
 					setcookie('token', $return['token']);
+					if (isset($return['whouseno']) && !empty($return['whouseno'])) {
+						setcookie('whouseno', $return['whouseno']);
+					}
 				}
 				echo json_encode(array('message' => $return['message']));
 			}
@@ -120,11 +123,45 @@ elseif (isset($_POST['module'])) {
 				if ($return['message'] == 'Success') {
 					unset($_COOKIE['account']);
 					unset($_COOKIE['token']);
+					unset($_COOKIE['whouseno']);
+				}
+				echo json_encode(array('message' => $return['message']));
+			}
+			elseif ($_POST['event'] == 'change_whouse') {
+				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
+				$post = array_merge($id, $_POST);
+				$return = json_decode(curl_post($post, $_POST['module']), true);
+				if ($return['message'] == 'Success') {
+					setcookie('whouseno', $_POST['whouseno']);
 				}
 				echo json_encode(array('message' => $return['message']));
 			}
 			elseif ($_POST['event'] == 'logon') {
 				echo curl_post($_POST, $_POST['module']);
+			}
+			elseif ($_POST['event'] == 'current_whouse') {
+				if (isset($_COOKIE['whouseno']) && !empty($_COOKIE['whouseno'])) {
+					$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
+					$post = array_merge($id, array('module' => 'whouse', 'event' => 'query'));
+					$return = json_decode(curl_post($post, 'whouse'), true);
+					if ($return['message'] == 'Success') {
+						echo json_encode(array('message' => 'Success', 'content' => '操作中的倉庫：'.$return['whousenm']));
+					}
+					else {
+						unset($_COOKIE['whouseno']);
+						echo json_encode(array('message' => $return['message']));
+					}
+				}
+				else {
+					echo json_encode(array('message' => 'Success', 'content' => '操作中的倉庫：無操作中的倉庫'));
+				}
+			}
+			elseif ($_POST['event'] == 'available') {
+				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
+				$post = array_merge($id, $_POST);
+				$return = json_decode(curl_post($post, $_POST['module']), true);
+				$whouseno = (isset($_COOKIE['whouseno']) && !empty($_COOKIE['whouseno'])) ? $_COOKIE['whouseno'] : '';
+				echo json_encode(array_merge($return, array('whouseno' => $whouseno)));
 			}
 			elseif (in_array($_POST['event'], array('change_password', 'search_account', 'search_auth', 'view', 'notice', 'auth', 'release'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
@@ -159,7 +196,12 @@ function find_current() {
 			include_once("view/index.html");
 		}
 		elseif ($return['authority'] == 'B') {
-			include_once("view/index.html");
+			if (isset($_COOKIE['whouseno']) && !empty($_COOKIE['whouseno'])) {
+				include_once("view/index.html");
+			}
+			else {
+				include_once("view/user/change_whouse.html");
+			}
 		}
 		elseif ($return['authority'] == 'C') {
 			include_once("view/viewer.html");
@@ -168,6 +210,7 @@ function find_current() {
 	else {
 		unset($_COOKIE['account']);
 		unset($_COOKIE['token']);
+		unset($_COOKIE['whouseno']);
 		include_once("view/user/entry.html");
 	}
 }

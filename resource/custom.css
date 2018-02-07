@@ -43,6 +43,11 @@
   visibility: hidden;
 }
 
+#Right {
+  width: 50%;
+  float: right;
+}
+
 .violate {
   border: 1px solid red;
 }

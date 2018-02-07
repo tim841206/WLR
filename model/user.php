@@ -50,6 +50,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				return;
 			}
 		}
+		elseif ($_POST['event'] == 'available') {
+			$message = available($_POST);
+			if (is_array($message)) {
+				echo json_encode($message);
+				return;
+			}
+			else {
+				echo json_encode(array('message' => $message));
+				return;
+			}
+		}
+		elseif ($_POST['event'] == 'change_whouse') {
+			$message = change_whouse($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
 
 		
 		elseif ($_POST['event'] == 'search_account') {
@@ -125,6 +141,12 @@ function get_token() {
 	return $code;
 }
 
+function query_name($whouseno) {
+	$sql = mysql_query("SELECT WHOUSENM FROM WHOUSE WHERE WHOUSENO='$whouseno'");
+	$fetch = mysql_fetch_array($sql);
+	return $fetch['WHOUSENM'];
+}
+
 function login($content) {
 	$account = $content['account'];
 	$password = $content['password'];
@@ -152,7 +174,17 @@ function login($content) {
 			$date = date("Y-m-d H:i:s");
 			$sql2 = "UPDATE USER SET TOKEN='$token', LASTLOGINDATE='$date' WHERE ACCOUNT='$account'";
 			if (mysql_query($sql2)) {
-				return array('message' => 'Success', 'token' => $token, 'authority' => $fetch1['AUTHORITY']);
+				$sql3 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND AUTHORITY!='C'");
+				if ($sql3 != false && mysql_num_rows($sql3) == 1) {
+					$fetch3 = mysql_fetch_array($sql3);
+					return array('message' => 'Success', 'token' => $token, 'whouseno' => $fetch3['WHOUSENO']);
+				}
+				elseif ($sql3 == false || mysql_num_rows($sql3) == 0) {
+					return array('message' => 'Success', 'token' => $token, 'authority' => $fetch1['AUTHORITY']);
+				}
+				else {
+					return array('message' => 'Success', 'token' => $token, 'authority' => $fetch1['AUTHORITY']);
+				}
 			}
 			else {
 				return 'Database operation error';
@@ -397,6 +429,87 @@ function get_auth($content) {
 		}
 	}
 }
+
+function available($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		else {
+			$content = '<h3>可操作之倉庫列表</h3>';
+			$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND AUTHORITY!='C'");
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				$content .= '<h3>無可操作之倉庫</h3>';
+			}
+			else {
+				$content .= '<tr><td>倉庫編號</td><td>倉庫名稱</td><td>最後操作日期</td></tr></table>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.query_name($fetch2['WHOUSENO']).'</td><td>'.$fetch2['LASTUSETIME'].'</td></tr>';
+				}
+				$content .= '</table>';
+			}
+			return array('message' => 'Success', 'content' => $content);
+		}
+	}
+}
+
+function change_whouse($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whouseno = $content['whouseno'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	elseif (empty($whouseno)) {
+		return 'Empty warehouse number';
+	}
+	elseif (strlen($whouseno) > 20) {
+		return 'Warehouse number exceed length limit';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		$fetch2 = mysql_fetch_array($sql2);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch2['AUTHORITY'] != 'A' && $fetch2['AUTHORITY'] != 'B') {
+			return 'No authority';
+		}
+		else {
+			date_default_timezone_set('Asia/Taipei');
+			$date = date("Y-m-d H:i:s");
+			$sql3 = "UPDATE USERWHOUSE SET LASTUSETIME='$date' WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'";
+			if (mysql_query($sql3)) {
+				return 'Success';
+			}
+			else {
+				return 'Database operation error';
+			}
+		}
+	}
+}
+
 
 
 

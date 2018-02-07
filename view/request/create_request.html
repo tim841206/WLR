@@ -18,9 +18,9 @@
 				<tr><td>目標倉庫編號</td><td><input type="text" name="target" id="target" onchange="create_request_whouseno()"></td></tr>
 				<tr><td>備註</td><td><input type="text" name="memo" id="memo" onchange="check_200(document.getElementById('memo').value)"></td></tr>
 			</table>
-			<table id="itemContent">
+			<table id="itemContent" style="visibility: hidden;">
 				<tr><td>物料編號</td><td>物料名稱</td><td>物料數量</td></tr>
-				<tr id="item1"><td><input type="text" name="itemno1" id="itemno1" onchange="create_request_itemno()"></td><td><span id="itemnm1"></span></td><td><input type="text" name="itemamt1" id="itemamt1" value="0" onchange="create_request_itemamt()"></td></tr>
+				<tr id="item1" style="visibility: hidden;"><td><input type="text" name="itemno1" id="itemno1" onchange="create_request_itemno()"></td><td><span id="itemnm1"></span></td><td><input type="text" name="itemamt1" id="itemamt1" value="0" onchange="create_request_itemamt()"></td></tr>
 				<tr id="item2" style="visibility: hidden;"><td><input type="text" name="itemno2" id="itemno2" onchange="create_request_itemno()"></td><td><span id="itemnm2"></span></td><td><input type="text" name="itemamt2" id="itemamt2" value="0" onchange="create_request_itemamt()"></td></tr>
 				<tr id="item3" style="visibility: hidden;"><td><input type="text" name="itemno3" id="itemno3" onchange="create_request_itemno()"></td><td><span id="itemnm3"></span></td><td><input type="text" name="itemamt3" id="itemamt3" value="0" onchange="create_request_itemamt()"></td></tr>
 				<tr id="item4" style="visibility: hidden;"><td><input type="text" name="itemno4" id="itemno4" onchange="create_request_itemno()"></td><td><span id="itemnm4"></span></td><td><input type="text" name="itemamt4" id="itemamt4" value="0" onchange="create_request_itemamt()"></td></tr>
@@ -68,11 +68,13 @@
 					if (data.message == 'ok') {
 						document.getElementById("target").readOnly = true;
 						document.getElementById("itemContent").style.visibility = 'visible';
+						document.getElementById("item1").style.visibility = 'visible';
 					}
 					else {
 						alert(data.message);
 						document.getElementById("target").readOnly = false;
 						document.getElementById("itemContent").style.visibility = 'hidden';
+						document.getElementById("item1").style.visibility = 'hidden';
 					}
 				}
 			}

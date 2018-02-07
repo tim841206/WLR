@@ -152,7 +152,7 @@ CREATE TABLE `userwhouse` (
   `ACCOUNT` varchar(20) COLLATE utf8_bin NOT NULL,
   `WHOUSENO` varchar(20) COLLATE utf8_bin NOT NULL,
   `AUTHORITY` varchar(1) COLLATE utf8_bin NOT NULL DEFAULT 'C',
-  `LASTUSEDATE` datetime DEFAULT NULL
+  `LASTUSETIME` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------

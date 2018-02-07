@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="倉儲與運輸物流系統">
+		<meta name="author" content="冷俊瑩">
+		<script src="resource/custom.js"></script>
+		<link href="resource/custom.css" rel="stylesheet">
+		<title>選擇倉庫</title>
+		<header>
+			<h1>選擇倉庫</h1>
+		</header>
+	</head>
+	<body onload="time(); available();">
+		<p>現在時間：<span id="now"></span></p>
+		<div id="Main">
+			<table>
+				<tr><th>請輸入欲操作倉庫之倉庫編號</th></tr>
+				<tr><td><input type="text" name="whouseno" id="whouseno"></td></tr>
+			</table>
+			<button onclick="change_whouse()">確定進入</button>
+		</div>
+		<div id="Right">
+		</div>
+	</body>
+	<script type="text/javascript">
+		function available() {
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=user&event=available";
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						document.getElementById('whouseno').value = data.whouseno;
+						document.getElementById('Right').innerHTML = data.content;
+					}
+					else {
+						alert(data.message);
+						document.getElementById('whouseno').value = data.whouseno;
+						document.getElementById('Right').innerHTML = '';
+					}
+				}
+			}
+		}
+
+		function change_whouse() {
+			var whouseno = document.getElementById("whouseno").value;
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=user&event=change_whouse&whouseno=" + whouseno;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						location.assign('index.php');
+					}
+					else {
+						alert(data.message);
+					}
+				}
+			}
+		}
+	</script>
+</html>
