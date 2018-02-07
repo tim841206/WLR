@@ -140,17 +140,17 @@ function create($content) {
 						$sql5 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$target' AND ITEMNO='$itemno' AND ACTCODE=1");
 						$sql4 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 						if ($sql4 == false) {
-							$warning = 'Unreceivable warehouse item' . $i;
+							$warning = 'Unreceivable warehouse item ' . query_name($itemno);
 							break;
 						}
 						elseif ($sql5 == false) {
-							$warning = 'Unfound warehouse item' . $i;
+							$warning = 'Unfound warehouse item ' . query_name($itemno);
 							break;
 						}
 						else {
 							$fetch5 = mysql_fetch_array($sql5);
 							if ($fetch5['REQUEST'] == 0) {
-								$warning = 'Unrequestable item' . $i;
+								$warning = 'Unrequestable item ' . query_name($itemno);
 								break;
 							}
 						}
@@ -262,17 +262,17 @@ function check_itemno($content) {
 						$sql3 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 						$sql4 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$target' AND ITEMNO='$itemno' AND ACTCODE=1");
 						if ($sql3 == false || mysql_num_rows($sql3) == 0) {
-							return 'Unreceivable warehouse item' . $i;
+							return 'Unreceivable warehouse item ' . query_name($itemno);
 							break;
 						}
 						elseif ($sql4 == false || mysql_num_rows($sql4) == 0) {
-							return 'Unfound warehouse item' . $i;
+							return 'Unfound warehouse item ' . query_name($itemno);
 							break;
 						}
 						else {
 							$fetch4 = mysql_fetch_array($sql4);
 							if ($fetch4['REQUEST'] == 0) {
-								return 'Unrequestable item' . $i;
+								return 'Unrequestable item ' . query_name($itemno);
 								break;
 							}
 						}
@@ -370,8 +370,16 @@ function accept($content) {
 				while ($fetch4 = mysql_fetch_array($sql4)) {
 					$itemno = $fetch4['ITEMNO'];
 					$amt = $fetch4['AMT'];
-					mysql_query("UPDATE WHOUSEITEM SET AMT=AMT-'$amt' WHERE WHOUSENO='$minuswhouse' AND ITEMNO='$itemno'");
-					mysql_query("UPDATE WHOUSE SET WHOUSEAMT=WHOUSEAMT-'$amt' WHERE WHOUSENO='$minuswhouse'");
+					$sql5 = mysql_query("SELECT AMT FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno'");
+					$fetch5 = mysql_fetch_array($sql5);
+					if ($fetch5['AMT'] < $amt) {
+						return 'Not enough ' . query_name($itemno);
+						break;
+					}
+					else {
+						mysql_query("UPDATE WHOUSEITEM SET AMT=AMT-'$amt' WHERE WHOUSENO='$minuswhouse' AND ITEMNO='$itemno'");
+						mysql_query("UPDATE WHOUSE SET WHOUSEAMT=WHOUSEAMT-'$amt' WHERE WHOUSENO='$minuswhouse'");
+					}
 				}
 				mysql_query("UPDATE REQUEST SET STATE='B' WHERE REQUESTNO='$requestno'");
 				return 'Success';

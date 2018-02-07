@@ -145,21 +145,21 @@ function create($content) {
 						$sql4 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 						$sql5 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$receiver' AND ITEMNO='$itemno' AND ACTCODE=1");
 						if ($sql4 == false || mysql_num_rows($sql4) == 0) {
-							$warning = 'Unfound warehouse item' . $i;
+							$warning = 'Unfound warehouse item ' . query_name($itemno);
 							break;
 						}
 						elseif ($sql5 == false || mysql_num_rows($sql5) == 0) {
-							$warning = 'Unreceivable warehouse item' . $i;
+							$warning = 'Unreceivable warehouse item ' . query_name($itemno);
 							break;
 						}
 						else {
 							$fetch4 = mysql_fetch_array($sql4);
 							if ($fetch4['LOGISTIC'] == 0) {
-								$warning = 'Undeliverable item' . $i;
+								$warning = 'Undeliverable item ' . query_name($itemno);
 								break;
 							}
 							elseif ($fetch4['AMT'] < $content[$itemamt]) {
-								$warning = 'Not enough item' . $i;
+								$warning = 'Not enough ' . query_name($itemno);
 								break;
 							}
 						}
@@ -273,17 +273,17 @@ function check_itemno($content) {
 						$sql3 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 						$sql4 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$receiver' AND ITEMNO='$itemno' AND ACTCODE=1");
 						if ($sql3 == false || mysql_num_rows($sql3) == 0) {
-							return 'Unfound warehouse item' . $i;
+							return 'Unfound warehouse item ' . query_name($itemno);
 							break;
 						}
 						elseif ($sql4 == false || mysql_num_rows($sql4) == 0) {
-							return 'Unreceivable warehouse item' . $i;
+							return 'Unreceivable warehouse item ' . query_name($itemno);
 							break;
 						}
 						else {
 							$fetch3 = mysql_fetch_array($sql3);
 							if ($fetch3['LOGISTIC'] == 0) {
-								return 'Undeliverable item' . $i;
+								return 'Undeliverable item ' . query_name($itemno);
 								break;
 							}
 						}
@@ -338,17 +338,17 @@ function check_itemamt($content) {
 					if (!empty($content[$itemno])) {
 						$sql3 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
 						if ($sql3 == false) {
-							return 'Unfound warehouse item' . $i;
+							return 'Unfound warehouse item ' . query_name($itemno);
 							break;
 						}
 						else {
 							$fetch3 = mysql_fetch_array($sql3);
 							if ($fetch3['LOGISTIC'] == 0) {
-								return 'Undeliverable item' . $i;
+								return 'Undeliverable item ' . query_name($itemno);
 								break;
 							}
 							elseif ($fetch3['AMT'] < $itemamt) {
-								return 'Not enough item' . $i;
+								return 'Not enough ' . query_name($itemno);
 								break;
 							}
 						}
