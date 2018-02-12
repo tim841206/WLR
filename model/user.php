@@ -105,6 +105,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				return;
 			}
 		}
+		elseif ($_POST['event'] == 'search') {
+			$message = search($_POST);
+			if (is_array($message)) {
+				echo json_encode($message);
+				return;
+			}
+			else {
+				echo json_encode(array('message' => $message));
+				return;
+			}
+		}
 		else {
 			echo json_encode(array('message' => 'Invalid event called'));
 			return;
@@ -143,6 +154,12 @@ function query_name($whouseno) {
 function check_equal($std, $auth) {
 	if ($std == $auth) { return ' selected'; }
 	else { return ''; }
+}
+
+function transform_authority($authority) {
+	if ($authority == 'A') { return '可授權'; }
+	elseif ($authority == 'B') { return '可使用'; }
+	elseif ($authority == 'C') { return '無權限'; }
 }
 
 function login($content) {
@@ -538,7 +555,7 @@ function available($content) {
 				}
 				$content .= '<tr><td>倉庫編號</td><td>倉庫名稱</td><td>最後操作日期</td><td>操作</td></tr></table>';
 				while ($fetch2 = mysql_fetch_array($sql2)) {
-					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.query_name($fetch2['WHOUSENO']).'</td><td>'.$fetch2['LASTUSETIME'].'</td><td><button onclick="change_whouse(\''.$fetch2['WHOUSENO'].'\')"></button></td></tr>';
+					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.query_name($fetch2['WHOUSENO']).'</td><td>'.$fetch2['LASTUSETIME'].'</td><td><button onclick="change_whouse(\''.$fetch2['WHOUSENO'].'\')">進入</button></td></tr>';
 				}
 				$content .= '</table>';
 			}
@@ -633,50 +650,79 @@ function view($content) {
 	}
 }
 
-
-
-function search_account($account, $token, $index) {
-	$sql1 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$account' AND ACTCODE=1");
-	$sql2 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$index' AND ACTCODE=1");
+function search($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$target = $content['target'];
+	$usernm = $content['usernm'];
+	$phone = $content['phone'];
+	$email = $content['email'];
+	$authority = $content['authority'];
+	$whouseno = $content['whouseno'];
+	$createtimestart = $content['createtimestart'];
+	$createtimeend = $content['createtimeend'];
+	$logintimestart = $content['logintimestart'];
+	$logintimeend = $content['logintimeend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
 	if (empty($account)) {
 		return 'Empty account';
 	}
 	elseif (empty($token)) {
 		return 'Empty token';
 	}
-	elseif (empty($index)) {
-		return 'Empty target';
-	}
 	elseif ($sql1 == false) {
 		return 'Unregistered account';
 	}
-	elseif ($sql2 == false) {
-		return 'Unregistered target';
-	}
 	else {
 		$fetch1 = mysql_fetch_array($sql1);
-		if ($fetch1['TOKEN'] != md5($account.$token)) {
+		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
 		}
-		elseif ($fetch1['AUTHORITY'] != 'A') {
+		elseif ($fetch2['AUTHORITY'] != 'A') {
 			return 'No authority';
 		}
 		else {
-			$fetch2 = mysql_fetch_array($sql2);
-			if ($fetch1['AUTHORITY'] == 'B' && $fetch2['AUTHORITY'] != 'B') {
-				return 'No authority';
+			$sql2 = "SELECT * FROM USER WHERE 1";
+			if (!empty($target)) {
+				$sql2 .= " AND ACCOUNT='$target'";
 			}
-			elseif ($fetch1['AUTHORITY'] == 'C' && $fetch2['AUTHORITY'] != 'C') {
-				return 'No authority';
+			if (!empty($usernm)) {
+				$sql2 .= " AND USERNM='$usernm'";
 			}
-			elseif ($fetch1['AUTHORITY'] == 'D' && $fetch2['AUTHORITY'] != 'D') {
-				return 'No authority';
+			if (!empty($phone)) {
+				$sql2 .= " AND PHONE='$phone'";
 			}
-			elseif ($fetch1['AUTHORITY'] == 'I' && $fetch2['AUTHORITY'] != 'I') {
-				return 'No authority';
+			if (!empty($email)) {
+				$sql2 .= " AND EMAIL='$email'";
 			}
-			else { 
-				$content = '<table><tr><th>使用者帳號</th><th>使用者名稱</th><th>帳號建立日期</th><th>帳號最後登入日期</th><th>權限</th></tr><tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['NAME'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['ONLINEDATE'].'</td><td>'.transfer($fetch2['AUTHORITY']).'</td></tr></table>';
+			if (!empty($authority)) {
+				$sql2 .= " AND AUTHORITY='$authority'";
+			}
+			if (!empty($whouseno)) {
+				$sql2 .= " AND ACCOUNT IN (SELECT ACCOUNT FROM USERWHOUSE WHERE WHOUSENO='$whouseno' AND (AUTHORITY='A' OR AUTHORITY='B'))";
+			}
+			if (!empty($createtimestart)) {
+				$sql2 .= " AND CREATETIME>'$createtimestart'";
+			}
+			if (!empty($createtimeend)) {
+				$sql2 .= " AND CREATETIME<'$createtimeend'";
+			}
+			if (!empty($logintimestart)) {
+				$sql2 .= " AND LASTLOGINTIME>'$logintimestart'";
+			}
+			if (!empty($logintimeend)) {
+				$sql2 .= " AND LASTLOGINTIME<'$lohintimeend'";
+			}
+			$sql2 = mysql_query($sql2);
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'No data';
+			}
+			else {
+				$content = '<table><tr><td>使用者帳號</td><td>使用者名稱</td><td>使用者電話</td><td>使用者信箱</td><td>使用者權限</td><td>註冊時間</td><td>最後登入時間</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['USERNM'].'</td><td>'.$fetch2['PHONE'].'</td><td>'.$fetch2['EMAIL'].'</td><td>'.transform_authority($fetch2['AUTHORITY']).'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['LASTLOGINTIME'].'</td></tr></table>';
+				}
+				$content .= '</table>';
 				return array('message' => 'Success', 'content' => $content);
 			}
 		}

@@ -6,7 +6,7 @@
 		<meta name="author" content="冷俊瑩">
 		<script src="resource/custom.js"></script>
 		<link href="resource/custom.css" rel="stylesheet">
-		<title>查詢使用者</title>
+		<title>倉儲與運輸物流系統 - 查詢使用者</title>
 		<header>
 			<h1>查詢使用者</h1>
 		</header>
@@ -15,7 +15,7 @@
 		<p>現在時間：<span id="now"></span></p>
 		<div>
 			<table>
-				<tr><td>使用者編號</td><td><input type="text" name="account" id="account"></td></tr>
+				<tr><td>使用者編號</td><td><input type="text" name="target" id="target"></td></tr>
 				<tr><td>使用者名稱</td><td><input type="text" name="usernm" id="usernm"></td></tr>
 				<tr><td>使用者電話</td><td><input type="text" name="phone" id="phone"></td></tr>
 				<tr><td>使用者信箱</td><td><input type="text" name="email" id="email"></td></tr>
@@ -28,14 +28,12 @@
 			<button onclick="Refresh()">重新整理</button>
 			<button onclick="location.assign('index.php')">返回首頁</button>
 		</div>
-		<div id="Main">
-		</div>
-		<div id="Last">
+		<div id="Content">
 		</div>
 	</body>
 	<script type="text/javascript">
-		function search_request() {
-			var account = document.getElementById("account").value;
+		function search_user() {
+			var target = document.getElementById("target").value;
 			var usernm = document.getElementById("usernm").value;
 			var phone = document.getElementById("phone").value;
 			var email = document.getElementById("email").value;
@@ -55,31 +53,11 @@
 				if (request.readyState === 4 && request.status === 200) {
 					var data = JSON.parse(request.responseText);
 					if (data.message == 'Success') {
-						document.getElementById('Main').innerHTML = data.content;
+						document.getElementById('Content').innerHTML = data.content;
 					}
 					else {
 						alert(data.message);
-						document.getElementById('Main').innerHTML = '';
-					}
-				}
-			}
-		}
-
-		function view(account) {
-			var request = new XMLHttpRequest();
-			request.open("POST", "index.php");
-			var data = "module=user&event=view&account=" + account;
-			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			request.send(data);
-			request.onreadystatechange = function() {
-				if (request.readyState === 4 && request.status === 200) {
-					var data = JSON.parse(request.responseText);
-					if (data.message == 'Success') {
-						document.getElementById('Last').innerHTML = data.content;
-					}
-					else {
-						alert(data.message);
-						document.getElementById('Last').innerHTML = '';
+						document.getElementById('Content').innerHTML = '';
 					}
 				}
 			}
@@ -96,8 +74,7 @@
 			document.getElementById("createtimeend").value = null;
 			document.getElementById("logintimestart").value = null;
 			document.getElementById("logintimeend").value = null;
-			document.getElementById('Main').innerHTML = '';
-			document.getElementById('Last').innerHTML = '';
+			document.getElementById('Content').innerHTML = '';
 		}
 	</script>
 </html>
