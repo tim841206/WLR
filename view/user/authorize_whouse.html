@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="倉儲與運輸物流系統">
+		<meta name="author" content="冷俊瑩">
+		<script src="resource/custom.js"></script>
+		<link href="resource/custom.css" rel="stylesheet">
+		<title>授權倉庫使用者</title>
+		<header>
+			<h1>授權倉庫使用者</h1>
+		</header>
+	</head>
+	<body onload="time()">
+		<p>現在時間：<span id="now"></span></p>
+		<table>
+			<tr><td>關鍵倉庫編號</td><td><input type="text" name="whouseno" id="whouseno"></td></tr>
+			<tr><td>關鍵使用者帳號</td><td><input type="text" name="target" id="target"></td></tr>
+		</table>
+		<button onclick="query_authorize_whouse()">確定查詢</button>
+		<button onclick="Refresh()">重新整理</button>
+		<button onclick="location.assign('index.php')">返回首頁</button>
+		<div id="Content">
+		</div>
+	</body>
+	<script type="text/javascript">
+		function query_authorize_whouse() {
+			var whouseno = document.getElementById("whouseno").value;
+			var target = document.getElementById("target").value;
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=uesr&event=query_authorize_whouse&whouseno=" + whouseno + "&target=" + target;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						document.getElementById("Content").innerHTML = data.content;
+					}
+					else {
+						alert(data.message);
+						document.getElementById("Content").innerHTML = '';
+					}
+				}
+			}
+		}
+
+		function change_authorize_whouse(account, whouseno, authority) {
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=user&event=change_auth_whouse&account=" + account + "&whouseno=" + whouseno + "&authority=" + authority;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						alert("成功修改");
+					}
+					else {
+						alert(data.message);
+					}
+				}
+			}
+		}
+
+		function Refresh() {
+			document.getElementById("whouseno").value = '';
+			document.getElementById("target").value = '';
+			document.getElementById("Content").innerHTML = '';
+		}
+	</script>
+</html>

@@ -41,7 +41,16 @@ if (isset($_GET['module']) && isset($_GET['operate'])) {
 		}
 	}
 	elseif ($_GET['module'] == 'user') {
-		if (in_array($_GET['operate'], array('change_whouse', 'change_password', 'change_authority'))) {
+		if (in_array($_GET['operate'], array('verify', 'authorize', 'search', 'export', 'authorize_whouse'))) {
+			$return = json_decode(curl_post(array('module' => 'user', 'event' => 'get_auth', 'account' => $_COOKIE['account'], 'token' => $_COOKIE['token']), 'user'), true);
+			if ($return['message'] == 'Success' && $return['authority'] == 'A') {
+				include_once('view/user/'.$_GET['operate'].'.html');
+			}
+			else {
+				find_current();
+			}
+		}
+		elseif (in_array($_GET['operate'], array('change_whouse', 'change_password', 'auth_whouse'))) {
 			include_once('view/user/'.$_GET['operate'].'.html');
 		}
 		else {
@@ -52,6 +61,7 @@ if (isset($_GET['module']) && isset($_GET['operate'])) {
 		find_current();
 	}
 }
+
 elseif (isset($_POST['module'])) {
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if ($_POST['module'] == 'whouse') {
@@ -163,7 +173,7 @@ elseif (isset($_POST['module'])) {
 				$whouseno = (isset($_COOKIE['whouseno']) && !empty($_COOKIE['whouseno'])) ? $_COOKIE['whouseno'] : '';
 				echo json_encode(array_merge($return, array('whouseno' => $whouseno)));
 			}
-			elseif (in_array($_POST['event'], array('change_password', 'search_account', 'search_auth', 'view', 'notice', 'auth', 'release'))) {
+			elseif (in_array($_POST['event'], array('change_password', 'query_verify', 'query_authorize', 'view', 'auth', 'release'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);
@@ -186,32 +196,32 @@ elseif (isset($_COOKIE['account']) && isset($_COOKIE['token'])) {
 }
 
 else {
-	include_once("view/user/entry.html");
+	include_once("view/index/entry.html");
 }
 
 function find_current() {
 	$return = json_decode(curl_post(array('module' => 'user', 'event' => 'get_auth', 'account' => $_COOKIE['account'], 'token' => $_COOKIE['token']), 'user'), true);
 	if ($return['message'] == 'Success') {
 		if ($return['authority'] == 'A') {
-			include_once("view/index.html");
+			include_once("view/index/manager.html");
 		}
 		elseif ($return['authority'] == 'B') {
 			if (isset($_COOKIE['whouseno']) && !empty($_COOKIE['whouseno'])) {
-				include_once("view/index.html");
+				include_once("view/index/index.html");
 			}
 			else {
 				include_once("view/user/change_whouse.html");
 			}
 		}
 		elseif ($return['authority'] == 'C') {
-			include_once("view/viewer.html");
+			include_once("view/index/viewer.html");
 		}
 	}
 	else {
 		unset($_COOKIE['account']);
 		unset($_COOKIE['token']);
 		unset($_COOKIE['whouseno']);
-		include_once("view/user/entry.html");
+		include_once("view/index/entry.html");
 	}
 }
 

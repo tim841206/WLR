@@ -130,8 +130,8 @@ CREATE TABLE `user` (
   `PHONE` varchar(20) COLLATE utf8_bin DEFAULT NULL,
   `EMAIL` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `AUTHORITY` varchar(1) COLLATE utf8_bin NOT NULL DEFAULT 'C',
-  `CREATEDATE` datetime NOT NULL,
-  `LASTLOGINDATE` datetime NOT NULL,
+  `CREATETIME` datetime NOT NULL,
+  `LASTLOGINTIME` datetime NOT NULL,
   `ACTCODE` tinyint(2) NOT NULL DEFAULT '2'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -139,8 +139,8 @@ CREATE TABLE `user` (
 -- 資料表的匯出資料 `user`
 --
 
-INSERT INTO `user` (`ACCOUNT`, `PASSWORD`, `TOKEN`, `USERNM`, `PHONE`, `EMAIL`, `AUTHORITY`, `CREATEDATE`, `LASTLOGINDATE`, `ACTCODE`) VALUES
-('tim841206', '900a5367f5e1', 'XSPkU3sAC5gO', '冷俊瑩', '0922825881', 'a0922825881@gmail.com', 'A', '2018-01-30 00:00:00', '2018-01-31 21:55:08', 1);
+INSERT INTO `user` (`ACCOUNT`, `PASSWORD`, `USERNM`, `PHONE`, `EMAIL`, `AUTHORITY`, `CREATETIME`, `LASTLOGINTIME`, `ACTCODE`) VALUES
+('tim841206', '900a5367f5e1', '冷俊瑩', '0922825881', 'a0922825881@gmail.com', 'A', '2018-01-30 00:00:00', '2018-01-31 21:55:08', 1);
 
 -- --------------------------------------------------------
 

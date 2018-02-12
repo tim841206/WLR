@@ -6,8 +6,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if ($_POST['event'] == 'login') {
 			$message = login($_POST);
 			if (is_array($message)) {
-				echo json_encode(array('message' => $message['message'], 'token' => $message['token'], 'authority' => $message['authority']));
-				return;
+				if (isset($message['whouseno'])) {
+					echo json_encode(array('message' => $message['message'], 'token' => $message['token'], 'whouseno' => $message['whouseno']));
+					return;
+				}
+				else {
+					echo json_encode(array('message' => $message['message'], 'token' => $message['token']));
+					return;
+				}
 			}
 			else {
 				echo json_encode(array('message' => $message));
@@ -66,12 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			echo json_encode(array('message' => $message));
 			return;
 		}
-
-		
-		elseif ($_POST['event'] == 'search_account') {
-			$message = search_account($_POST['account'], $_POST['token'], $_POST['index']);
+		elseif ($_POST['event'] == 'query_verify') {
+			$message = query_verify($_POST);
 			if (is_array($message)) {
-				echo json_encode(array('message' => $message['message'], 'content' => $message['content']));
+				echo json_encode($message);
 				return;
 			}
 			else {
@@ -79,10 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				return;
 			}
 		}
-		elseif ($_POST['event'] == 'search_auth') {
-			$message = search_auth($_POST['account'], $_POST['token'], $_POST['auth']);
+		elseif ($_POST['event'] == 'query_authorize') {
+			$message = query_authorize($_POST);
 			if (is_array($message)) {
-				echo json_encode(array('message' => $message['message'], 'content' => $message['content']));
+				echo json_encode($message);
 				return;
 			}
 			else {
@@ -91,20 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			}
 		}
 		elseif ($_POST['event'] == 'view') {
-			$message = view($_POST['account'], $_POST['token']);
+			$message = view($_POST);
 			if (is_array($message)) {
-				echo json_encode(array('message' => $message['message'], 'content' => $message['content']));
-				return;
-			}
-			else {
-				echo json_encode(array('message' => $message));
-				return;
-			}
-		}
-		elseif ($_POST['event'] == 'notice') {
-			$message = notice($_POST['account'], $_POST['token']);
-			if (is_array($message)) {
-				echo json_encode(array('message' => $message['message'], 'content' => $message['content']));
+				echo json_encode($message);
 				return;
 			}
 			else {
@@ -147,6 +140,11 @@ function query_name($whouseno) {
 	return $fetch['WHOUSENM'];
 }
 
+function check_equal($std, $auth) {
+	if ($std == $auth) { return ' selected'; }
+	else { return ''; }
+}
+
 function login($content) {
 	$account = $content['account'];
 	$password = $content['password'];
@@ -172,18 +170,15 @@ function login($content) {
 			$token = get_token();
 			date_default_timezone_set('Asia/Taipei');
 			$date = date("Y-m-d H:i:s");
-			$sql2 = "UPDATE USER SET TOKEN='$token', LASTLOGINDATE='$date' WHERE ACCOUNT='$account'";
+			$sql2 = "UPDATE USER SET TOKEN='$token', LASTLOGINTIME='$date' WHERE ACCOUNT='$account'";
 			if (mysql_query($sql2)) {
 				$sql3 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND AUTHORITY!='C'");
 				if ($sql3 != false && mysql_num_rows($sql3) == 1) {
 					$fetch3 = mysql_fetch_array($sql3);
 					return array('message' => 'Success', 'token' => $token, 'whouseno' => $fetch3['WHOUSENO']);
 				}
-				elseif ($sql3 == false || mysql_num_rows($sql3) == 0) {
-					return array('message' => 'Success', 'token' => $token, 'authority' => $fetch1['AUTHORITY']);
-				}
 				else {
-					return array('message' => 'Success', 'token' => $token, 'authority' => $fetch1['AUTHORITY']);
+					return array('message' => 'Success', 'token' => $token);
 				}
 			}
 			else {
@@ -252,12 +247,92 @@ function logon($content) {
 		date_default_timezone_set('Asia/Taipei');
 		$date = date("Y-m-d H:i:s");
 		$password = encrypt($password);
-		$sql2 = "INSERT INTO USER (ACCOUNT, PASSWORD, USERNM, PHONE, EMAIL, CREATEDATE, ACTCODE) VALUES ('$account', '$password', '$name', '$phone', '$email', '$date', 2)";
+		$sql2 = "INSERT INTO USER (ACCOUNT, PASSWORD, USERNM, PHONE, EMAIL, CREATETIME, ACTCODE) VALUES ('$account', '$password', '$name', '$phone', '$email', '$date', 2)";
 		if (mysql_query($sql2)) {
 			return 'Success';
 		}
 		else {
 			return 'Database operation error';
+		}
+	}
+}
+
+function query_verify($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			$content = '';
+			$sql2 = mysql_query("SELECT * FROM USER WHERE ACTCODE=2");
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				$content = '<p>無等待核可之帳號</p>';
+			}
+			else {
+				$content = '<table><tr><td>使用者帳號</td><td>使用者姓名</td><td>使用者電話</td><td>使用者信箱</td><td>註冊時間</td><td>操作</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['USERNM'].'</td><td>'.$fetch2['PHONE'].'</td><td>'.$fetch2['EMAIL'].'</td><td>'.$fetch2['CREATETIME'].'</td><td><button onclick="auth(\''.$fetch2['ACCOUNT'].'\')">接受</button><button onclick="release(\''.$fetch2['ACCOUNT'].'\')">拒絕</button></td></tr>';
+				}
+				$content .= '</table>';
+			}
+			$content .= '<button onclick="location.assign(\'index.php\')">返回首頁</button>';
+			return array('message' => 'Success', 'content' => $content);
+		}
+	}
+}
+
+function query_authorize($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			$content = '';
+			$sql2 = mysql_query("SELECT * FROM USER WHERE ACTCODE=1 AND ACCOUNT!='$account' ORDER BY AUTHORITY, CREATETIME, ACCOUNT");
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				$content = '<p>無可授權之帳號</p>';
+			}
+			else {
+				$content = '<table><tr><td>使用者帳號</td><td>使用者姓名</td><td>使用者電話</td><td>使用者信箱</td><td>註冊時間</td><td>最後登入時間</td><td>操作</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['USERNM'].'</td><td>'.$fetch2['PHONE'].'</td><td>'.$fetch2['EMAIL'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['LASTLOGINTIME'].'</td><td><button onclick="view(\''.$fetch2['ACCOUNT'].'\')">查看</button></td></tr>';
+				}
+				$content .= '</table>';
+			}
+			$content .= '<button onclick="location.assign(\'index.php\')">返回首頁</button>';
+			return array('message' => 'Success', 'content' => $content);
 		}
 	}
 }
@@ -292,7 +367,7 @@ function auth($content) {
 			return 'No authority';
 		}
 		else {
-			$sql3 = "UPDATE USER SET ACTCODE=1 WHERE ACCOUNT='$index'";
+			$sql3 = "UPDATE USER SET ACTCODE=1 WHERE ACCOUNT='$target'";
 			if (mysql_query($sql3)) {
 				$sql4 = mysql_query("SELECT WHOUSENO FROM WHOUSE");
 				while ($fetch4 = mysql_fetch_array($sql4)) {
@@ -338,7 +413,7 @@ function release($content) {
 			return 'No authority';
 		}
 		else {
-			$sql3 = "DELETE FROM USER WHERE ACCOUNT='$index'";
+			$sql3 = "DELETE FROM USER WHERE ACCOUNT='$target'";
 			if (mysql_query($sql3)) {
 				return 'Success';
 			}
@@ -449,15 +524,21 @@ function available($content) {
 			return 'Wrong token';
 		}
 		else {
-			$content = '<h3>可操作之倉庫列表</h3>';
+			$content = '<h3>請選擇欲操作之倉庫</h3>';
 			$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND AUTHORITY!='C'");
+			if ($fetch1['AUTHORITY'] == 'A') {
+				$content .= '<tr><td colspan="4"><button onclick="change_whouse(\'\')">直接進入</button></td></tr>';
+			}
 			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
 				$content .= '<h3>無可操作之倉庫</h3>';
 			}
 			else {
-				$content .= '<tr><td>倉庫編號</td><td>倉庫名稱</td><td>最後操作日期</td></tr></table>';
+				if ($fetch1['AUTHORITY'] == 'A') {
+					$content .= '<tr><td colspan="4"><button onclick="change_whouse(\'\')">直接進入</button></td></tr>';
+				}
+				$content .= '<tr><td>倉庫編號</td><td>倉庫名稱</td><td>最後操作日期</td><td>操作</td></tr></table>';
 				while ($fetch2 = mysql_fetch_array($sql2)) {
-					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.query_name($fetch2['WHOUSENO']).'</td><td>'.$fetch2['LASTUSETIME'].'</td></tr>';
+					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.query_name($fetch2['WHOUSENO']).'</td><td>'.$fetch2['LASTUSETIME'].'</td><td><button onclick="change_whouse(\''.$fetch2['WHOUSENO'].'\')"></button></td></tr>';
 				}
 				$content .= '</table>';
 			}
@@ -481,35 +562,76 @@ function change_whouse($content) {
 	elseif ($sql1 == false) {
 		return 'Unregistered account';
 	}
-	elseif (empty($whouseno)) {
-		return 'Empty warehouse number';
-	}
-	elseif (strlen($whouseno) > 20) {
-		return 'Warehouse number exceed length limit';
-	}
 	else {
 		$fetch1 = mysql_fetch_array($sql1);
 		$fetch2 = mysql_fetch_array($sql2);
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
 		}
-		elseif ($fetch2['AUTHORITY'] != 'A' && $fetch2['AUTHORITY'] != 'B') {
-			return 'No authority';
+		elseif ($fetch1['AUTHORITY'] == 'A' && empty($whouseno)) {
+			return 'Success';
 		}
 		else {
-			date_default_timezone_set('Asia/Taipei');
-			$date = date("Y-m-d H:i:s");
-			$sql3 = "UPDATE USERWHOUSE SET LASTUSETIME='$date' WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'";
-			if (mysql_query($sql3)) {
-				return 'Success';
+			if (empty($whouseno)) {
+				return 'Empty warehouse number';
+			}
+			elseif (strlen($whouseno) > 20) {
+				return 'Warehouse number exceed length limit';
+			}
+			elseif ($fetch2['AUTHORITY'] != 'A' && $fetch2['AUTHORITY'] != 'B') {
+				return 'No authority';
 			}
 			else {
-				return 'Database operation error';
+				date_default_timezone_set('Asia/Taipei');
+				$date = date("Y-m-d H:i:s");
+				$sql3 = "UPDATE USERWHOUSE SET LASTUSETIME='$date' WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'";
+				if (mysql_query($sql3)) {
+					return 'Success';
+				}
+				else {
+					return 'Database operation error';
+				}
 			}
 		}
 	}
 }
 
+function view($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$target = $content['target'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	$sql2 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$target' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif (empty($target)) {
+		return 'Empty target';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	elseif ($sql2 == false) {
+		return 'Unregistered target';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			$fetch2 = mysql_fetch_array($sql2);
+			$content = '<table><tr><td>使用者帳號</td><td>'.$fetch2['ACCOUNT'].'</td></tr><tr><td>使用者名稱</td><td>'.$fetch2['USERNM'].'</td></tr><tr><td>使用者電話</td><td>'.$fetch2['PHONE'].'</td></tr><tr><td>使用者信箱</td><td>'.$fetch2['EMAIL'].'</td></tr><tr><td>註冊時間</td><td>'.$fetch2['CREATETIME'].'</td></tr><tr><td>使用者權限</td><td><select id="authority"><option value="A"'.check_equal('A', $fetch2['AUTHORITY']).'>可授權</option><option value="B"'.check_equal('B', $fetch2['AUTHORITY']).'>可使用</option><option value="C"'.check_equal('C', $fetch2['AUTHORITY']).'>無權限</option></select></td></tr><tr><td>操作</td><td><button onclick="change_authority(\''.$fetch2['ACCOUNT'].'\')">確定更改</button></td></tr></table>';
+			return array('message' => 'Success', 'content' => $content);
+		}
+	}
+}
 
 
 
@@ -554,138 +676,9 @@ function search_account($account, $token, $index) {
 				return 'No authority';
 			}
 			else { 
-				$content = '<table><tr><th>使用者帳號</th><th>使用者名稱</th><th>帳號建立日期</th><th>帳號最後登入日期</th><th>權限</th></tr><tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['NAME'].'</td><td>'.$fetch2['CREATEDATE'].'</td><td>'.$fetch2['ONLINEDATE'].'</td><td>'.transfer($fetch2['AUTHORITY']).'</td></tr></table>';
+				$content = '<table><tr><th>使用者帳號</th><th>使用者名稱</th><th>帳號建立日期</th><th>帳號最後登入日期</th><th>權限</th></tr><tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['NAME'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['ONLINEDATE'].'</td><td>'.transfer($fetch2['AUTHORITY']).'</td></tr></table>';
 				return array('message' => 'Success', 'content' => $content);
 			}
 		}
 	}
-}
-
-function search_auth($account, $token, $auth) {
-	$sql1 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$account' AND ACTCODE='1'");
-	if (empty($account)) {
-		return 'Empty account';
-	}
-	elseif (empty($token)) {
-		return 'Empty token';
-	}
-	elseif (empty($auth)) {
-		return 'Empty auth';
-	}
-	elseif (!in_array($auth, array('A', 'B', 'C', 'D', 'E', 'I'))) {
-		return 'Wrong auth format';
-	}
-	elseif ($sql1 == false) {
-		return 'Unregistered account';
-	}
-	else {
-		$fetch1 = mysql_fetch_array($sql1);
-		if ($fetch1['TOKEN'] != md5($account.$token)) {
-			return 'Wrong token';
-		}
-		elseif ($fetch1['AUTHORITY'] == 'B' && $auth != 'B') {
-			return 'No authority';
-		}
-		elseif ($fetch1['AUTHORITY'] == 'C' && $auth != 'C') {
-			return 'No authority';
-		}
-		elseif ($fetch1['AUTHORITY'] == 'D' && $auth != 'D') {
-			return 'No authority';
-		}
-		elseif ($fetch1['AUTHORITY'] == 'I' && $auth != 'I') {
-			return 'No authority';
-		}
-		else {
-			$sql2 = mysql_query("SELECT * FROM MEMBERMAS WHERE AUTHORITY='$auth' AND ACTCODE='1'");
-			if ($sql2 == false) {
-				$content = '查無資料';
-			}
-			else {
-				$content = '<table><tr><th>使用者帳號</th><th>使用者名稱</th><th>帳號建立日期</th><th>帳號最後登入日期</th><th>權限</th></tr>';
-				while ($fetch2 = mysql_fetch_array($sql2)) {
-					$content .= '<tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['NAME'].'</td><td>'.$fetch2['CREATEDATE'].'</td><td>'.$fetch2['ONLINEDATE'].'</td><td>'.transfer($fetch2['AUTHORITY']).'</td></tr>';
-				}
-				$content .= '</table>';
-			}
-			return array('message' => 'Success', 'content' => $content);
-		}
-	}
-}
-
-function view($account, $token) {
-	$sql1 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$account' AND ACTCODE='1'");
-	if (empty($account)) {
-		return 'Empty account';
-	}
-	elseif (empty($token)) {
-		return 'Empty token';
-	}
-	elseif ($sql1 == false) {
-		return 'Unregistered account';
-	}
-	else {
-		$fetch1 = mysql_fetch_array($sql1);
-		if ($fetch1['TOKEN'] != md5($account.$token)) {
-			return 'Wrong token';
-		}
-		else {
-			$authority = $fetch1['AUTHORITY'];
-			$sql2 = ($authority == 'A') ? mysql_query("SELECT * FROM MEMBERMAS WHERE ACTCODE='1' ORDER BY ONLINEDATE DESC") : mysql_query("SELECT * FROM MEMBERMAS WHERE AUTHORITY='$authority' AND ACTCODE='1' ORDER BY ONLINEDATE DESC");
-			if ($sql2 == false) {
-				$content = '查無資料';
-			}
-			else {
-				$content = '<table><tr><th>使用者帳號</th><th>使用者名稱</th><th>帳號建立日期</th><th>帳號最後登入日期</th><th>權限</th></tr>';
-				while ($fetch2 = mysql_fetch_array($sql2)) {
-					$content .= '<tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['NAME'].'</td><td>'.$fetch2['CREATEDATE'].'</td><td>'.$fetch2['ONLINEDATE'].'</td><td>'.$fetch2['AUTHORITY'].'</td></tr>';
-				}
-				$content .= '</table>';
-			}
-			return array('message' => 'Success', 'content' => $content);
-		}
-	}
-}
-
-function notice($account, $token) {
-	$sql1 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACCOUNT='$account' AND ACTCODE='1'");
-	if (empty($account)) {
-		return 'Empty account';
-	}
-	elseif (empty($token)) {
-		return 'Empty token';
-	}
-	elseif ($sql1 == false) {
-		return 'Unregistered account';
-	}
-	else {
-		$fetch1 = mysql_fetch_array($sql1);
-		if ($fetch1['TOKEN'] != md5($account.$token)) {
-			return 'Wrong token';
-		}
-		elseif ($fetch1['AUTHORITY'] != 'A' || $account != 'trisoap') {
-			return 'No notice';
-		}
-		else {
-			$sql2 = mysql_query("SELECT * FROM MEMBERMAS WHERE ACTCODE='2' ORDER BY ONLINEDATE ASC");
-			if (mysql_num_rows($sql2) == 0) {
-				return 'No notice';
-			}
-			else {
-				$content = '';
-				while ($fetch2 = mysql_fetch_array($sql2)) {
-					$content .= $fetch2['NAME'] . ' 請求獲得 ' . transfer($fetch2['AUTHORITY']) . ' 的授權。<button onclick="auth(\''.$fetch2['ACCOUNT'].'\')">授權</button><button onclick="release(\''.$fetch2['ACCOUNT'].'\')">拒絕</button><br>';
-				}
-				return array('message' => 'Success', 'content' => $content);
-			}
-		}
-	}
-}
-
-function transfer($authority) {
-	if ($authority == 'A') return '總部';
-	elseif ($authority == 'B') return '北投';
-	elseif ($authority == 'C') return '後山埤';
-	elseif ($authority == 'D') return '台東';
-	elseif ($authority == 'E') return '實習';
-	elseif ($authority == 'I') return '宜蘭';
 }
