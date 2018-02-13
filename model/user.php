@@ -116,6 +116,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				return;
 			}
 		}
+		elseif ($_POST['event'] == 'query_auth_whouse') {
+			$message = query_auth_whouse($_POST);
+			if (is_array($message)) {
+				echo json_encode($message);
+				return;
+			}
+			else {
+				echo json_encode(array('message' => $message));
+				return;
+			}
+		}
+		elseif ($_POST['event'] == 'query_authorize_whouse') {
+			$message = query_authorize_whouse($_POST);
+			if (is_array($message)) {
+				echo json_encode($message);
+				return;
+			}
+			else {
+				echo json_encode(array('message' => $message));
+				return;
+			}
+		}
+		elseif ($_POST['event'] == 'change_auth_whouse') {
+			$message = change_auth_whouse($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
+		elseif ($_POST['event'] == 'change_authorize_whouse') {
+			$message = change_authorize_whouse($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
 		else {
 			echo json_encode(array('message' => 'Invalid event called'));
 			return;
@@ -720,10 +752,186 @@ function search($content) {
 			else {
 				$content = '<table><tr><td>使用者帳號</td><td>使用者名稱</td><td>使用者電話</td><td>使用者信箱</td><td>使用者權限</td><td>註冊時間</td><td>最後登入時間</td></tr>';
 				while ($fetch2 = mysql_fetch_array($sql2)) {
-					$content .= '<tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['USERNM'].'</td><td>'.$fetch2['PHONE'].'</td><td>'.$fetch2['EMAIL'].'</td><td>'.transform_authority($fetch2['AUTHORITY']).'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['LASTLOGINTIME'].'</td></tr></table>';
+					$content .= '<tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['USERNM'].'</td><td>'.$fetch2['PHONE'].'</td><td>'.$fetch2['EMAIL'].'</td><td>'.transform_authority($fetch2['AUTHORITY']).'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['LASTLOGINTIME'].'</td></tr>';
 				}
 				$content .= '</table>';
 				return array('message' => 'Success', 'content' => $content);
+			}
+		}
+	}
+}
+
+function query_auth_whouse($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whouseno = $content['whouseno'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		$fetch2 = mysql_fetch_array($sql2);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch2['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			$content = '';
+			$sql3 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND ACCOUNT!='$account'");
+			if ($sql3 == false || mysql_num_rows($sql3) == 0) {
+				$content = 'No data';
+			}
+			else {
+				$content = '<table><tr><td>使用者帳號</td><td>使用者名稱</td><td>使用者電話</td><td>使用者信箱</td><td>註冊時間</td><td>最後登入時間</td><td>使用者權限</td></tr>';
+				while ($fetch3 = mysql_fetch_array($sql3)) {
+					$content .= '<tr><td>'.$fetch3['ACCOUNT'].'</td><td>'.$fetch3['USERNM'].'</td><td>'.$fetch3['PHONE'].'</td><td>'.$fetch3['EMAIL'].'</td><td>'.$fetch3['CREATETIME'].'</td><td>'.$fetch3['LASTLOGINTIME'].'</td><td><select id="authority" onchange="change_auth_whouse(\''.$fetch3['ACCOUNT'].'\', document.getElementById(\'authority\').value)"><option value="A"'.check_equal('A', $fetch3['AUTHORITY']).'>可授權</option><option value="B"'.check_equal('B', $fetch3['AUTHORITY']).'>可使用</option><option value="C"'.check_equal('C', $fetch3['AUTHORITY']).'>無權限</option></select></td></tr>';
+				}
+				$content .= '</table><button onclick="location.assign(\'index.php\')">返回首頁</button>';
+			}
+			return array('message' => 'Success', 'content' => $content);
+		}
+	}
+}
+
+function query_authorize_whouse($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whouseno = $content['whouseno'];
+	$target = $content['target'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			$sql2 = "SELECT * FROM USERWHOUSE WHERE 1";
+			if (!empty($whouseno)) {
+				$sql2 .= " AND WHOUSENO='$whouseno'";
+			}
+			if (!empty($target)) {
+				$sql2 .= " AND ACCOUNT='$account'";
+			}
+			$content = '';
+			$sql2 = mysql_query($sql2);
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				$content = 'No data';
+			}
+			else {
+				$content = '<table><tr><td>使用者帳號</td><td>使用者名稱</td><td>使用者電話</td><td>使用者信箱</td><td>註冊時間</td><td>最後登入時間</td><td>使用者權限</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['ACCOUNT'].'</td><td>'.$fetch2['USERNM'].'</td><td>'.$fetch2['PHONE'].'</td><td>'.$fetch2['EMAIL'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['LASTLOGINTIME'].'</td><td><select id="authority" onchange="change_auth_whouse(\''.$fetch2['ACCOUNT'].'\', document.getElementById(\'authority\').value)"><option value="A"'.check_equal('A', $fetch2['AUTHORITY']).'>可授權</option><option value="B"'.check_equal('B', $fetch2['AUTHORITY']).'>可使用</option><option value="C"'.check_equal('C', $fetch2['AUTHORITY']).'>無權限</option></select></td></tr>';
+				}
+				$content .= '</table><button onclick="location.assign(\'index.php\')">返回首頁</button>';
+			}
+			return array('message' => 'Success', 'content' => $content);
+		}
+	}
+}
+
+function change_auth_whouse($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whouseno = $content['whouseno'];
+	$target = $content['target'];
+	$authority = $content['authority'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		$fetch2 = mysql_fetch_array($sql2);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch2['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			$sql3 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$target' AND WHOUSENO='$whouseno'");
+			if ($sql3 == false || mysql_num_rows($sql3) == 0) {
+				return 'Unfound user warehouse authority';
+			}
+			else {
+				$sql4 = "UPDATE USERWHOUSE SET AUTHORITY='$authority' WHERE ACCOUNT='$target' AND WHOUSENO='$whouseno'";
+				if (mysql_query($sql4)) {
+					return 'Success';
+				}
+				else {
+					return 'Database operation error';
+				}
+			}
+		}
+	}
+}
+
+function change_authorize_whouse($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whouseno = $content['whouseno'];
+	$target = $content['target'];
+	$authority = $content['authority'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$target' AND WHOUSENO='$whouseno'");
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'Unfound user warehouse authority';
+			}
+			else {
+				$sql3 = "UPDATE USERWHOUSE SET AUTHORITY='$authority' WHERE ACCOUNT='$target' AND WHOUSENO='$whouseno'";
+				if (mysql_query($sql3)) {
+					return 'Success';
+				}
+				else {
+					return 'Database operation error';
+				}
 			}
 		}
 	}

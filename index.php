@@ -173,8 +173,13 @@ elseif (isset($_POST['module'])) {
 				$whouseno = (isset($_COOKIE['whouseno']) && !empty($_COOKIE['whouseno'])) ? $_COOKIE['whouseno'] : '';
 				echo json_encode(array_merge($return, array('whouseno' => $whouseno)));
 			}
-			elseif (in_array($_POST['event'], array('search', 'change_password', 'query_verify', 'query_authorize', 'view', 'auth', 'release'))) {
+			elseif (in_array($_POST['event'], array('search', 'change_password', 'query_verify', 'query_authorize', 'view', 'auth', 'release', 'query_authorize_whouse', 'change_authorize_whouse'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
+				$post = array_merge($id, $_POST);
+				echo curl_post($post, $_POST['module']);
+			}
+			elseif (in_array($_POST['event'], array('query_auth_whouse', 'change_auth_whouse'))) {
+				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token'], 'whouseno' => $_COOKIE['whouseno']);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);
 			}

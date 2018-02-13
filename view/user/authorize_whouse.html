@@ -46,10 +46,10 @@
 			}
 		}
 
-		function change_authorize_whouse(account, whouseno, authority) {
+		function change_authorize_whouse(target, whouseno, authority) {
 			var request = new XMLHttpRequest();
 			request.open("POST", "index.php");
-			var data = "module=user&event=change_auth_whouse&account=" + account + "&whouseno=" + whouseno + "&authority=" + authority;
+			var data = "module=user&event=change_authorize_whouse&target=" + target + "&whouseno=" + whouseno + "&authority=" + authority;
 			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 			request.send(data);
 			request.onreadystatechange = function() {
