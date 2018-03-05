@@ -710,7 +710,7 @@ function search($content) {
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
 		}
-		elseif ($fetch2['AUTHORITY'] != 'A') {
+		elseif ($fetch1['AUTHORITY'] != 'A') {
 			return 'No authority';
 		}
 		else {

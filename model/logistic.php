@@ -563,7 +563,6 @@ function search($content) {
 	$closetimestart = $content['closetimestart'];
 	$closetimeend = $content['closetimeend'];
 	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
-	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -575,15 +574,31 @@ function search($content) {
 	}
 	else {
 		$fetch1 = mysql_fetch_array($sql1);
-		$fetch2 = mysql_fetch_array($sql2);
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
 		}
-		elseif (!in_array($fetch2['AUTHORITY'], array('A', 'B', 'C'))) {
+		elseif (empty($whouseno) && $fetch1['AUTHORITY'] != 'A') {
 			return 'No authority';
 		}
 		else {
-			$sql3 = "SELECT * FROM LOGISTIC WHERE 1";
+			if (!empty($whouseno)) {
+				$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
+				$fetch2 = mysql_fetch_array($sql2);
+				if (!in_array($fetch2['AUTHORITY'], array('A', 'B', 'C'))) {
+					return 'No authority';
+				}
+				else {
+					$sql3 = "SELECT * FROM LOGISTIC WHERE (SENDER='$whouseno' || RECEIVER='$whouseno')";
+				}
+			}
+			else {
+				if ($fetch1['AUTHORITY'] != 'A') {
+					return 'No authority';
+				}
+				else {
+					$sql3 = "SELECT * FROM LOGISTIC WHERE 1";
+				}
+			}
 			if (!empty($logisticno)) {
 				$sql3 .= " AND LOGISTICNO='$logisticno'";
 			}

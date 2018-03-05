@@ -46,7 +46,7 @@
 
 			var request = new XMLHttpRequest();
 			request.open("POST", "index.php");
-			var data = "module=user&event=search&account=" + account + "&usernm=" + usernm + "&phone=" + phone + "&email=" + email + "&authority=" + authority + "&whouseno=" + whouseno + "&createtimestart=" + createtimestart + "&createtimeend=" + createtimeend + "&logintimestart=" + logintimestart + "&logintimeend=" + logintimeend;
+			var data = "module=user&event=search&target=" + target + "&usernm=" + usernm + "&phone=" + phone + "&email=" + email + "&authority=" + authority + "&whouseno=" + whouseno + "&createtimestart=" + createtimestart + "&createtimeend=" + createtimeend + "&logintimestart=" + logintimestart + "&logintimeend=" + logintimeend;
 			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 			request.send(data);
 			request.onreadystatechange = function() {
@@ -64,7 +64,7 @@
 		}
 
 		function Refresh() {
-			document.getElementById("account").value = null;
+			document.getElementById("target").value = null;
 			document.getElementById("usernm").value = null;
 			document.getElementById("phone").value = null;
 			document.getElementById("email").value = null;

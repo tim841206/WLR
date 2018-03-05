@@ -137,8 +137,8 @@ function create($content) {
 					$itemno = 'itemno'.$i;
 					$itemamt = 'itemamt'.$i;
 					if (!empty($content[$itemno])) {
-						$sql5 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$target' AND ITEMNO='$itemno' AND ACTCODE=1");
 						$sql4 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$whouseno' AND ITEMNO='$itemno' AND ACTCODE=1");
+						$sql5 = mysql_query("SELECT * FROM WHOUSEITEM WHERE WHOUSENO='$target' AND ITEMNO='$itemno' AND ACTCODE=1");
 						if ($sql4 == false) {
 							$warning = 'Unreceivable warehouse item ' . query_name($itemno);
 							break;
@@ -495,7 +495,6 @@ function search($content) {
 	$closetimestart = $content['closetimestart'];
 	$closetimeend = $content['closetimeend'];
 	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
-	$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
 	if (empty($account)) {
 		return 'Empty account';
 	}
@@ -507,15 +506,31 @@ function search($content) {
 	}
 	else {
 		$fetch1 = mysql_fetch_array($sql1);
-		$fetch2 = mysql_fetch_array($sql2);
 		if ($fetch1['TOKEN'] != $token) {
 			return 'Wrong token';
 		}
-		elseif (!in_array($fetch2['AUTHORITY'], array('A', 'B', 'C'))) {
+		elseif (empty($whouseno) && $fetch1['AUTHORITY'] != 'A') {
 			return 'No authority';
 		}
 		else {
-			$sql3 = "SELECT * FROM REQUEST WHERE 1";
+			if (!empty($whouseno)) {
+				$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
+				$fetch2 = mysql_fetch_array($sql2);
+				if (!in_array($fetch2['AUTHORITY'], array('A', 'B', 'C'))) {
+					return 'No authority';
+				}
+				else {
+					$sql3 = "SELECT * FROM REQUEST WHERE (REQUESTER='$whouseno' || TARGET='$whouseno')";
+				}
+			}
+			else {
+				if ($fetch1['AUTHORITY'] != 'A') {
+					return 'No authority';
+				}
+				else {
+					$sql3 = "SELECT * FROM REQUEST WHERE 1";
+				}
+			}
 			if (!empty($requestno)) {
 				$sql3 .= " AND REQUESTNO='$requestno'";
 			}

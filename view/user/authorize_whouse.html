@@ -29,7 +29,7 @@
 			var target = document.getElementById("target").value;
 			var request = new XMLHttpRequest();
 			request.open("POST", "index.php");
-			var data = "module=uesr&event=query_authorize_whouse&whouseno=" + whouseno + "&target=" + target;
+			var data = "module=user&event=query_authorize_whouse&whouseno=" + whouseno + "&target=" + target;
 			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 			request.send(data);
 			request.onreadystatechange = function() {
