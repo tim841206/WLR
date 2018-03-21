@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="倉儲與運輸物流系統">
+		<meta name="author" content="冷俊瑩">
+		<script src="resource/custom.js"></script>
+		<link href="resource/custom.css" rel="stylesheet">
+		<title>倉儲與運輸物流系統 - 輸出倉庫</title>
+		<header>
+			<h1>輸出倉庫</h1>
+		</header>
+	</head>
+	<body onload="time()">
+		<p>現在時間：<span id="now"></span></p>
+		<div>
+			<table>
+				<tr><td>倉庫編號</td><td><input type="text" name="whousenostart" id="whousenostart"></td><td>至</td><td><input type="text" name="whousenoend" id="whousenoend"></td></tr>
+			</table>
+			<button id="export_whouse" onclick="export_whouse_search()">查詢</button>
+			<button onclick="Refresh()">重新整理</button>
+			<button onclick="location.assign('index.php')">返回首頁</button>
+		</div>
+		<div id="Main">
+		</div>
+		<div id="Last">
+		</div>
+	</body>
+	<script type="text/javascript">
+		function export_whouse_search() {
+			var whousenostart = document.getElementById("whousenostart").value;
+			var whousenoend = document.getElementById("whousenoend").value;
+
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=whouse&event=export_search&whousenostart=" + whousenostart + "&whousenoend=" + whousenoend;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						document.getElementById('Main').innerHTML = data.content;
+					}
+					else {
+						alert(data.message);
+						document.getElementById('Main').innerHTML = '';
+					}
+				}
+			}
+		}
+
+		function export_whouse() {
+			var whousenostart = document.getElementById("whousenostart").value;
+			var whousenoend = document.getElementById("whousenoend").value;
+
+			var request = new XMLHttpRequest();
+			request.open("POST", "index.php");
+			var data = "module=whouse&event=export&whousenostart=" + whousenostart + "&whousenoend=" + whousenoend;
+			request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.send(data);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4 && request.status === 200) {
+					var data = JSON.parse(request.responseText);
+					if (data.message == 'Success') {
+						alert("成功輸出");
+					}
+					else {
+						alert(data.message);
+					}
+				}
+			}
+		}
+
+		function Refresh() {
+			document.getElementById("whousenostart").value = null;
+			document.getElementById("whousenoend").value = null;
+			document.getElementById('Main').innerHTML = '';
+			document.getElementById('Last').innerHTML = '';
+		}
+	</script>
+</html>

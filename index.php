@@ -65,7 +65,7 @@ if (isset($_GET['module']) && isset($_GET['operate'])) {
 elseif (isset($_POST['module'])) {
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if ($_POST['module'] == 'whouse') {
-			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_empty', 'check_exist', 'check_delete', 'recover'))) {
+			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_empty', 'check_exist', 'check_delete', 'recover', 'export_search', 'export'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);
@@ -75,7 +75,7 @@ elseif (isset($_POST['module'])) {
 			}
 		}
 		elseif ($_POST['module'] == 'item') {
-			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_empty', 'check_delete', 'recover'))) {
+			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_empty', 'check_delete', 'recover', 'export_search', 'export'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);
@@ -85,7 +85,7 @@ elseif (isset($_POST['module'])) {
 			}
 		}
 		elseif ($_POST['module'] == 'whouseitem') {
-			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_item_empty', 'check_whouse_exist', 'check_item_exist', 'check_whouse_delete', 'check_item_delete'))) {
+			if (in_array($_POST['event'], array('create', 'modify', 'delete', 'query', 'check_item_empty', 'check_whouse_exist', 'check_item_exist', 'check_whouse_delete', 'check_item_delete', 'export_search', 'export'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token']);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);
@@ -96,7 +96,7 @@ elseif (isset($_POST['module'])) {
 		}
 		elseif ($_POST['module'] == 'logistic') {
 			$whouseno = isset($_COOKIE['whouseno']) ? $_COOKIE['whouseno'] : '';
-			if (in_array($_POST['event'], array('create', 'waiting', 'accept', 'reject', 'check', 'query', 'search', 'export', 'check_itemno', 'check_itemamt', 'view'))) {
+			if (in_array($_POST['event'], array('create', 'waiting', 'accept', 'reject', 'check', 'query', 'search', 'check_itemno', 'check_itemamt', 'view', 'export_search', 'export'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token'], 'whouseno' => $whouseno);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);
@@ -107,7 +107,7 @@ elseif (isset($_POST['module'])) {
 		}
 		elseif ($_POST['module'] == 'request') {
 			$whouseno = isset($_COOKIE['whouseno']) ? $_COOKIE['whouseno'] : '';
-			if (in_array($_POST['event'], array('create', 'waiting', 'accept', 'reject', 'check', 'query', 'search', 'export', 'check_itemno', 'view'))) {
+			if (in_array($_POST['event'], array('create', 'waiting', 'accept', 'reject', 'check', 'query', 'search', 'check_itemno', 'view', 'export_search', 'export'))) {
 				$id = array('account' => $_COOKIE['account'], 'token' => $_COOKIE['token'], 'whouseno' => $whouseno);
 				$post = array_merge($id, $_POST);
 				echo curl_post($post, $_POST['module']);

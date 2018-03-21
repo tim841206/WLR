@@ -54,6 +54,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			echo json_encode(array('message' => $message));
 			return;
 		}
+		elseif ($_POST['event'] == 'export_search') {
+			$message = export_search($_POST);
+			if (is_array($message)) {
+				echo json_encode($message);
+				return;
+			}
+			else {
+				echo json_encode(array('message' => $message));
+				return;
+			}
+		}
+		elseif ($_POST['event'] == 'export') {
+			$message = export($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
 		else {
 			echo json_encode(array('message' => 'Invalid event called'));
     		return;

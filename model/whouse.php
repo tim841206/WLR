@@ -55,6 +55,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			echo json_encode(array('message' => $message));
 			return;
 		}
+		elseif ($_POST['event'] == 'export_search') {
+			$message = export_search($_POST);
+			if (is_array($message)) {
+				echo json_encode($message);
+				return;
+			}
+			else {
+				echo json_encode(array('message' => $message));
+				return;
+			}
+		}
+		elseif ($_POST['event'] == 'export') {
+			$message = export($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
 		else {
 			echo json_encode(array('message' => 'Invalid event called'));
     		return;
@@ -293,6 +309,102 @@ function query($content) {
 			else {
 				$fetch4 = mysql_fetch_array($sql4);
 				return array('message' => 'Success', 'whousenm' => $fetch2['whousenm'], 'description' => $fetch2['description'], 'memo' => $fetch2['memo']);
+			}
+		}
+	}
+}
+
+function export_search($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whousenostart = $content['whousenostart'];
+	$whousenoend = $content['whousenoend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A' && $fetch1['AUTHORITY'] != 'B') {
+			return 'No authority';
+		}
+		else {
+			$sql2 = "SELECT * FROM WHOUSE WHERE ACTCODE=1";
+			if (!empty($whousenostart)) {
+				$sql2 .= "AND WHOUSENO>='$whousenostart'";
+			}
+			if (!empty($whousenoend)) {
+				$sql2 .= "AND WHOUSENO<='$whousenoend'";
+			}
+			$sql2 = mysql_query($sql2);
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'No data';
+			}
+			else {
+				$content = '<table><tr><td>倉庫編號</td><td>倉庫名稱</td><td>倉庫存量</td><td>倉庫概述</td><td>建立時間</td><td>最後修改時間</td><td>備註</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.$fetch2['WHOUSENM'].'</td><td>'.$fetch2['WHOUSEAMT'].'</td><td>'.$fetch2['DESCRIPTION'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['UPDATETIME'].'</td><td>'.$fetch2['MEMO'].'</td></tr></table>';
+				}
+				$content .= '</table><button onclick="export_whouse()">確定輸出</button>';
+				return array('message' => 'Success', 'content' => $content);
+			}
+		}
+	}
+}
+
+function export($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whousenostart = $content['whousenostart'];
+	$whousenoend = $content['whousenoend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A' && $fetch1['AUTHORITY'] != 'B') {
+			return 'No authority';
+		}
+		else {
+			$sql2 = "SELECT * FROM WHOUSE WHERE ACTCODE=1";
+			if (!empty($whousenostart)) {
+				$sql2 .= "AND WHOUSENO>='$whousenostart'";
+			}
+			if (!empty($whousenoend)) {
+				$sql2 .= "AND WHOUSENO<='$whousenoend'";
+			}
+			$sql2 = mysql_query($sql2);
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'No data';
+			}
+			else {
+				/*
+				$content = '<table><tr><td>倉庫編號</td><td>倉庫名稱</td><td>倉庫存量</td><td>倉庫概述</td><td>建立時間</td><td>最後修改時間</td><td>備註</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.$fetch2['WHOUSENM'].'</td><td>'.$fetch2['WHOUSEAMT'].'</td><td>'.$fetch2['DESCRIPTION'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['UPDATETIME'].'</td><td>'.$fetch2['MEMO'].'</td></tr></table>';
+				}
+				$content .= '</table>';
+				*/
+				return 'Success';
 			}
 		}
 	}

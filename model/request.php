@@ -78,6 +78,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				return;
 			}
 		}
+		elseif ($_POST['event'] == 'export') {
+			$message = export($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
+		elseif ($_POST['event'] == 'export_search') {
+			$message = export_search($_POST);
+			if (is_array($message)) {
+				echo json_encode($message);
+				return;
+			}
+			else {
+				echo json_encode(array('message' => $message));
+				return;
+			}
+		}
 		else {
 			echo json_encode(array('message' => 'Invalid event called'));
     		return;
@@ -568,6 +584,202 @@ function search($content) {
 					$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>'.transform_state($fetch3['STATE']).'</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="view(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr></table>';
 				}
 				$content .= '</table>';
+				return array('message' => 'Success', 'content' => $content);
+			}
+		}
+	}
+}
+
+function export($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whouseno = $content['whouseno'];
+	$requestnostart = $content['requestnostart'];
+	$requestnoend = $content['requestnoend'];
+	$requester = $content['requester'];
+	$target = $content['target'];
+	$whouse = $content['whouse'];
+	$item = $content['item'];
+	$createtimestart = $content['createtimestart'];
+	$createtimeend = $content['createtimeend'];
+	$closetimestart = $content['closetimestart'];
+	$closetimeend = $content['closetimeend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif (empty($whouseno) && $fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			if (!empty($whouseno)) {
+				$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
+				$fetch2 = mysql_fetch_array($sql2);
+				if (!in_array($fetch2['AUTHORITY'], array('A', 'B', 'C'))) {
+					return 'No authority';
+				}
+				else {
+					$sql3 = "SELECT * FROM REQUEST WHERE (REQUESTER='$whouseno' || TARGET='$whouseno')";
+				}
+			}
+			else {
+				if ($fetch1['AUTHORITY'] != 'A') {
+					return 'No authority';
+				}
+				else {
+					$sql3 = "SELECT * FROM REQUEST WHERE 1";
+				}
+			}
+			if (!empty($requestnostart)) {
+				$sql3 .= " AND REQUESTNO>='$requestnostart'";
+			}
+			if (!empty($requestnoend)) {
+				$sql3 .= " AND REQUESTNO<='$requestnoend'";
+			}
+			if (!empty($requester)) {
+				$sql3 .= " AND REQUESTER='$requester'";
+			}
+			if (!empty($target)) {
+				$sql3 .= " AND TARGET='$target'";
+			}
+			if (!empty($whouse)) {
+				$sql3 .= " AND (REQUESTER='$whouse' || TARGET='$whouse')";
+			}
+			if (!empty($item)) {
+				$sql3 .= " AND REQUESTNO IN (SELECT DISTINCT REQUESTNO FROM REQUESTITEM WHERE ITEMNO='$item')";
+			}
+			if (!empty($createtimestart)) {
+				$sql3 .= " AND CREATETIME>='$createtimestart'";
+			}
+			if (!empty($createtimeend)) {
+				$sql3 .= " AND CREATETIME<='$createtimeend'";
+			}
+			if (!empty($closetimestart)) {
+				$sql3 .= " AND STATE='E' AND UPDATETIME>='$closetimestart'";
+			}
+			if (!empty($closetimeend)) {
+				$sql3 .= " AND STATE='E' AND UPDATETIME<='$closetimeend'";
+			}
+			$sql3 = mysql_query($sql3);
+			if ($sql3 == false || mysql_num_rows($sql3) == 0) {
+				return 'No data';
+			}
+			else {
+				/*
+				$content = '<table><tr><td>請求編號</td><td>請求方</td><td>目標方</td><td>狀態</td><td>建立時間</td><td>操作</td></tr>';
+				while ($fetch3 = mysql_fetch_array($sql3)) {
+					$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>'.transform_state($fetch3['STATE']).'</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="view(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr></table>';
+				}
+				$content .= '</table><button onclick="export_request()">確定輸出</button>';
+				*/
+				return 'Success';
+			}
+		}
+	}
+}
+
+function export_search($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whouseno = $content['whouseno'];
+	$requestnostart = $content['requestnostart'];
+	$requestnoend = $content['requestnoend'];
+	$requester = $content['requester'];
+	$target = $content['target'];
+	$whouse = $content['whouse'];
+	$item = $content['item'];
+	$createtimestart = $content['createtimestart'];
+	$createtimeend = $content['createtimeend'];
+	$closetimestart = $content['closetimestart'];
+	$closetimeend = $content['closetimeend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif (empty($whouseno) && $fetch1['AUTHORITY'] != 'A') {
+			return 'No authority';
+		}
+		else {
+			if (!empty($whouseno)) {
+				$sql2 = mysql_query("SELECT * FROM USERWHOUSE WHERE ACCOUNT='$account' AND WHOUSENO='$whouseno'");
+				$fetch2 = mysql_fetch_array($sql2);
+				if (!in_array($fetch2['AUTHORITY'], array('A', 'B', 'C'))) {
+					return 'No authority';
+				}
+				else {
+					$sql3 = "SELECT * FROM REQUEST WHERE (REQUESTER='$whouseno' || TARGET='$whouseno')";
+				}
+			}
+			else {
+				if ($fetch1['AUTHORITY'] != 'A') {
+					return 'No authority';
+				}
+				else {
+					$sql3 = "SELECT * FROM REQUEST WHERE 1";
+				}
+			}
+			if (!empty($requestnostart)) {
+				$sql3 .= " AND REQUESTNO>='$requestnostart'";
+			}
+			if (!empty($requestnoend)) {
+				$sql3 .= " AND REQUESTNO<='$requestnoend'";
+			}
+			if (!empty($requester)) {
+				$sql3 .= " AND REQUESTER='$requester'";
+			}
+			if (!empty($target)) {
+				$sql3 .= " AND TARGET='$target'";
+			}
+			if (!empty($whouse)) {
+				$sql3 .= " AND (REQUESTER='$whouse' || TARGET='$whouse')";
+			}
+			if (!empty($item)) {
+				$sql3 .= " AND REQUESTNO IN (SELECT DISTINCT REQUESTNO FROM REQUESTITEM WHERE ITEMNO='$item')";
+			}
+			if (!empty($createtimestart)) {
+				$sql3 .= " AND CREATETIME>='$createtimestart'";
+			}
+			if (!empty($createtimeend)) {
+				$sql3 .= " AND CREATETIME<='$createtimeend'";
+			}
+			if (!empty($closetimestart)) {
+				$sql3 .= " AND STATE='E' AND UPDATETIME>='$closetimestart'";
+			}
+			if (!empty($closetimeend)) {
+				$sql3 .= " AND STATE='E' AND UPDATETIME<='$closetimeend'";
+			}
+			$sql3 = mysql_query($sql3);
+			if ($sql3 == false || mysql_num_rows($sql3) == 0) {
+				return 'No data';
+			}
+			else {
+				$content = '<table><tr><td>請求編號</td><td>請求方</td><td>目標方</td><td>狀態</td><td>建立時間</td><td>操作</td></tr>';
+				while ($fetch3 = mysql_fetch_array($sql3)) {
+					$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>'.transform_state($fetch3['STATE']).'</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="view(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr></table>';
+				}
+				$content .= '</table><button onclick="export_request()">確定輸出</button>';
 				return array('message' => 'Success', 'content' => $content);
 			}
 		}

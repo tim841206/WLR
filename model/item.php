@@ -50,6 +50,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			echo json_encode(array('message' => $message));
 			return;
 		}
+		elseif ($_POST['event'] == 'export_search') {
+			$message = export_search($_POST);
+			if (is_array($message)) {
+				echo json_encode($message);
+				return;
+			}
+			else {
+				echo json_encode(array('message' => $message));
+				return;
+			}
+		}
+		elseif ($_POST['event'] == 'export') {
+			$message = export($_POST);
+			echo json_encode(array('message' => $message));
+			return;
+		}
 		else {
 			echo json_encode(array('message' => 'Invalid event called'));
     		return;
@@ -276,6 +292,102 @@ function query($content) {
 			else {
 				$fetch2 = mysql_fetch_array($sql2);
 				return array('message' => 'Success', 'itemnm' => $fetch2['itemnm'], 'description' => $fetch2['description'], 'memo' => $fetch2['memo']);
+			}
+		}
+	}
+}
+
+function export_search($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$itemnostart = $content['itemnostart'];
+	$itemnoend = $content['itemnoend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A' && $fetch1['AUTHORITY'] != 'B') {
+			return 'No authority';
+		}
+		else {
+			$sql2 = "SELECT * FROM ITEM WHERE ACTCODE=1";
+			if (!empty($itemnostart)) {
+				$sql2 .= "AND ITEMNO>='$itemnostart'";
+			}
+			if (!empty($itemnoend)) {
+				$sql2 .= "AND ITEMNO<='$itemnoend'";
+			}
+			$sql2 = mysql_query($sql2);
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'No data';
+			}
+			else {
+				$content = '<table><tr><td>物料編號</td><td>物料名稱</td><td>物料存量</td><td>物料概述</td><td>建立時間</td><td>最後修改時間</td><td>備註</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['ITEMNO'].'</td><td>'.$fetch2['ITEMNM'].'</td><td>'.$fetch2['ITEMAMT'].'</td><td>'.$fetch2['DESCRIPTION'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['UPDATETIME'].'</td><td>'.$fetch2['MEMO'].'</td></tr></table>';
+				}
+				$content .= '</table><button onclick="export_item()">確定輸出</button>';
+				return array('message' => 'Success', 'content' => $content);
+			}
+		}
+	}
+}
+
+function export($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$itemnostart = $content['itemnostart'];
+	$itemnoend = $content['itemnoend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A' && $fetch1['AUTHORITY'] != 'B') {
+			return 'No authority';
+		}
+		else {
+			$sql2 = "SELECT * FROM ITEM WHERE ACTCODE=1";
+			if (!empty($itemnostart)) {
+				$sql2 .= "AND ITEMNO>='$itemnostart'";
+			}
+			if (!empty($itemnoend)) {
+				$sql2 .= "AND ITEMNO<='$itemnoend'";
+			}
+			$sql2 = mysql_query($sql2);
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'No data';
+			}
+			else {
+				/*
+				$content = '<table><tr><td>物料編號</td><td>物料名稱</td><td>物料存量</td><td>物料概述</td><td>建立時間</td><td>最後修改時間</td><td>備註</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['ITEMNO'].'</td><td>'.$fetch2['ITEMNM'].'</td><td>'.$fetch2['ITEMAMT'].'</td><td>'.$fetch2['DESCRIPTION'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['UPDATETIME'].'</td><td>'.$fetch2['MEMO'].'</td></tr></table>';
+				}
+				$content .= '</table>';
+				*/
+				return 'Success';
 			}
 		}
 	}
