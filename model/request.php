@@ -605,7 +605,7 @@ function export($content) {
 	$closetimestart = $content['closetimestart'];
 	$closetimeend = $content['closetimeend'];
 	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
-	if (!include_once("../resource/tcpdf.php")) {
+	if (!include_once("../resource/TCPDF/tcpdf.php")) {
 		return 'Unable to load export tool';
 	}
 	elseif (empty($account)) {
