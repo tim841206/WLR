@@ -352,7 +352,7 @@ function export_search($content) {
 			else {
 				$content = '<table><tr><td>倉庫編號</td><td>倉庫名稱</td><td>倉庫存量</td><td>倉庫概述</td><td>建立時間</td><td>最後修改時間</td><td>備註</td></tr>';
 				while ($fetch2 = mysql_fetch_array($sql2)) {
-					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.$fetch2['WHOUSENM'].'</td><td>'.$fetch2['WHOUSEAMT'].'</td><td>'.$fetch2['DESCRIPTION'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['UPDATETIME'].'</td><td>'.$fetch2['MEMO'].'</td></tr></table>';
+					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.$fetch2['WHOUSENM'].'</td><td>'.$fetch2['WHOUSEAMT'].'</td><td>'.$fetch2['DESCRIPTION'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['UPDATETIME'].'</td><td>'.$fetch2['MEMO'].'</td></tr>';
 				}
 				$content .= '</table><button onclick="export_whouse()">確定輸出</button>';
 				return array('message' => 'Success', 'content' => $content);
@@ -367,7 +367,10 @@ function export($content) {
 	$whousenostart = $content['whousenostart'];
 	$whousenoend = $content['whousenoend'];
 	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
-	if (empty($account)) {
+	if (!include_once("../resource/tcpdf.php")) {
+		return 'Unable to load export tool';
+	}
+	elseif (empty($account)) {
 		return 'Empty account';
 	}
 	elseif (empty($token)) {
@@ -397,13 +400,8 @@ function export($content) {
 				return 'No data';
 			}
 			else {
-				/*
-				$content = '<table><tr><td>倉庫編號</td><td>倉庫名稱</td><td>倉庫存量</td><td>倉庫概述</td><td>建立時間</td><td>最後修改時間</td><td>備註</td></tr>';
-				while ($fetch2 = mysql_fetch_array($sql2)) {
-					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.$fetch2['WHOUSENM'].'</td><td>'.$fetch2['WHOUSEAMT'].'</td><td>'.$fetch2['DESCRIPTION'].'</td><td>'.$fetch2['CREATETIME'].'</td><td>'.$fetch2['UPDATETIME'].'</td><td>'.$fetch2['MEMO'].'</td></tr></table>';
-				}
-				$content .= '</table>';
-				*/
+				download_whouse_pdf($sql2);
+				download_whouse_xls($sql2);
 				return 'Success';
 			}
 		}
@@ -569,5 +567,50 @@ function recover($content) {
 				}
 			}
 		}
+	}
+}
+
+function download_whouse_pdf($resource) {
+	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+	$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+	$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+	$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+	$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+	$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+	if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+		require_once(dirname(__FILE__).'/lang/eng.php');
+		$pdf->setLanguageArray($l);
+	}
+	$pdf->AddPage();
+	$pdf->SetFont('cid0jp', 'B', 20);
+	$pdf->Write(0, '倉庫', '', 0, 'C', true, 0, false, false, 0);
+	$pdf->SetFont('cid0jp', '', 12);
+
+	$tbl = '<table><tr><td>倉庫編號</td><td>倉庫名稱</td><td>倉庫存量</td><td>倉庫概述</td><td>建立時間</td><td>最後修改時間</td><td>備註</td></tr>';
+	while ($fetch = mysql_fetch_array($resource)) {
+		$tbl .= '<tr><td>'.$fetch['WHOUSENO'].'</td><td>'.$fetch['WHOUSENM'].'</td><td>'.$fetch['WHOUSEAMT'].'</td><td>'.$fetch['DESCRIPTION'].'</td><td>'.$fetch['CREATETIME'].'</td><td>'.$fetch['UPDATETIME'].'</td><td>'.$fetch['MEMO'].'</td></tr>';
+	}
+	$tbl .= '</table>';
+	$pdf->writeHTML($tbl, true, false, false, false, '');
+	ob_end_clean();
+	$pdf->Output('whouse.pdf', 'D');
+}
+
+function download_whouse_xls($resource) {
+	$fp = fopen("倉庫.xls", "w");
+	$content = "倉庫編號 \t倉庫名稱 \t倉庫存量 \t倉庫概述 \t建立時間 \t最後修改時間 \t備註\n";
+	while ($fetch = mysql_fetch_array($resource)) {
+		$content .= $fetch['WHOUSENO']."\t".$fetch['WHOUSENM']."\t".$fetch['WHOUSEAMT']."\t".$fetch['DESCRIPTION']."\t".$fetch['CREATETIME']."\t".$fetch['UPDATETIME']."\t".$fetch['MEMO']."\n";
+	}
+	if (fputs($fp, mb_convert_encoding($content, "Big5", "UTF-8"))) {
+		fclose($fp);
+		return 0;
+	}
+	else {
+		fclose($fp);
+		return 1;
 	}
 }

@@ -224,10 +224,10 @@ function waiting($content) {
 			$sql3 = mysql_query("SELECT * FROM REQUEST WHERE REQUESTER='$whouseno' AND STATE='B'");
 			$sql4 = mysql_query("SELECT * FROM REQUEST WHERE TARGET='$whouseno' AND STATE='A'");
 			while ($fetch3 = mysql_fetch_array($sql3)) {
-				$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>已接受</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="query(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr></table>';
+				$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>已接受</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="query(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr>';
 			}
 			while ($fetch4 = mysql_fetch_array($sql4)) {
-				$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>待確認</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="query(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr></table>';
+				$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>待確認</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="query(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr>';
 			}
 			$content .= '</table>';
 			return array('message' => 'Success', 'content' => $content);
@@ -581,7 +581,7 @@ function search($content) {
 			else {
 				$content = '<table><tr><td>請求編號</td><td>請求方</td><td>目標方</td><td>狀態</td><td>建立時間</td><td>操作</td></tr>';
 				while ($fetch3 = mysql_fetch_array($sql3)) {
-					$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>'.transform_state($fetch3['STATE']).'</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="view(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr></table>';
+					$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>'.transform_state($fetch3['STATE']).'</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="view(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr>';
 				}
 				$content .= '</table>';
 				return array('message' => 'Success', 'content' => $content);
@@ -605,7 +605,10 @@ function export($content) {
 	$closetimestart = $content['closetimestart'];
 	$closetimeend = $content['closetimeend'];
 	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
-	if (empty($account)) {
+	if (!include_once("../resource/tcpdf.php")) {
+		return 'Unable to load export tool';
+	}
+	elseif (empty($account)) {
 		return 'Empty account';
 	}
 	elseif (empty($token)) {
@@ -676,13 +679,8 @@ function export($content) {
 				return 'No data';
 			}
 			else {
-				/*
-				$content = '<table><tr><td>請求編號</td><td>請求方</td><td>目標方</td><td>狀態</td><td>建立時間</td><td>操作</td></tr>';
-				while ($fetch3 = mysql_fetch_array($sql3)) {
-					$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>'.transform_state($fetch3['STATE']).'</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="view(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr></table>';
-				}
-				$content .= '</table><button onclick="export_request()">確定輸出</button>';
-				*/
+				download_request_pdf($sql3);
+				download_request_xls($sql3);
 				return 'Success';
 			}
 		}
@@ -777,7 +775,7 @@ function export_search($content) {
 			else {
 				$content = '<table><tr><td>請求編號</td><td>請求方</td><td>目標方</td><td>狀態</td><td>建立時間</td><td>操作</td></tr>';
 				while ($fetch3 = mysql_fetch_array($sql3)) {
-					$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>'.transform_state($fetch3['STATE']).'</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="view(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr></table>';
+					$content .= '<tr><td>'.$fetch3['REQUESTNO'].'</td><td>'.$fetch3['REQUESTER'].'</td><td>'.$fetch3['TARGET'].'</td><td>'.transform_state($fetch3['STATE']).'</td><td>'.$fetch3['CREATETIME'].'</td><td><button onclick="view(\''.$fetch3['REQUESTNO'].'\')">查看</button></td></tr>';
 				}
 				$content .= '</table><button onclick="export_request()">確定輸出</button>';
 				return array('message' => 'Success', 'content' => $content);
@@ -854,4 +852,49 @@ function transform_state($state) {
 	elseif ($state == 'C') return '已拒絕';
 	elseif ($state == 'D') return '已確認';
 	elseif ($state == 'E') return '已結束';
+}
+
+function download_request_pdf($resource) {
+	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+	$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+	$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+	$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+	$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+	$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+	if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+		require_once(dirname(__FILE__).'/lang/eng.php');
+		$pdf->setLanguageArray($l);
+	}
+	$pdf->AddPage();
+	$pdf->SetFont('cid0jp', 'B', 20);
+	$pdf->Write(0, '請求', '', 0, 'C', true, 0, false, false, 0);
+	$pdf->SetFont('cid0jp', '', 12);
+
+	$tbl = '<table><tr><td>請求編號</td><td>請求方</td><td>目標方</td><td>狀態</td><td>建立時間</td></tr>';
+	while ($fetch = mysql_fetch_array($resource)) {
+		$tbl .= '<tr><td>'.$fetch['REQUESTNO'].'</td><td>'.$fetch['REQUESTER'].'</td><td>'.$fetch['TARGET'].'</td><td>'.transform_state($fetch['STATE']).'</td><td>'.$fetch['CREATETIME'].'</td></tr>';
+	}
+	$tbl .= '</table>';
+	$pdf->writeHTML($tbl, true, false, false, false, '');
+	ob_end_clean();
+	$pdf->Output('request.pdf', 'D');
+}
+
+function download_request_xls($resource) {
+	$fp = fopen("請求.xls", "w");
+	$content = "請求編號 \t請求方 \t目標方 \t狀態 \t建立時間\n";
+	while ($fetch = mysql_fetch_array($resource)) {
+		$content .= $fetch['REQUESTNO']."\t".$fetch['REQUESTER']."\t".$fetch['TARGET']."\t".transform_state($fetch['STATE'])."\t".$fetch['CREATETIME']."\n";
+	}
+	if (fputs($fp, mb_convert_encoding($content, "Big5", "UTF-8"))) {
+		fclose($fp);
+		return 0;
+	}
+	else {
+		fclose($fp);
+		return 1;
+	}
 }

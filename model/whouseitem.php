@@ -334,6 +334,116 @@ function query($content) {
 	}
 }
 
+function export_search($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whousenostart = $content['whousenostart'];
+	$whousenoend = $content['whousenoend'];
+	$itemnostart = $content['itemnostart'];
+	$itemnoend = $content['itemnoend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A' && $fetch1['AUTHORITY'] != 'B') {
+			return 'No authority';
+		}
+		else {
+			$sql2 = "SELECT * FROM WHOUSEITEM WHERE ACTCODE=1";
+			if (!empty($whousenostart)) {
+				$sql2 .= "AND WHOUSENO>='$whousenostart'";
+			}
+			if (!empty($whousenoend)) {
+				$sql2 .= "AND WHOUSENO<='$whousenoend'";
+			}
+			if (!empty($itemnostart)) {
+				$sql2 .= "AND ITEMNO>='$itemnostart'";
+			}
+			if (!empty($itemnoend)) {
+				$sql2 .= "AND ITEMNO<='$itemnoend'";
+			}
+			$sql2 = mysql_query($sql2);
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'No data';
+			}
+			else {
+				$content = '<table><tr><td>倉庫編號</td><td>倉庫名稱</td><td>物料編號</td><td>物料名稱</td><td>存量</td><td>運送權</td><td>請求權</td><td>最後修改時間</td><td>備註</td></tr>';
+				while ($fetch2 = mysql_fetch_array($sql2)) {
+					$content .= '<tr><td>'.$fetch2['WHOUSENO'].'</td><td>'.query_whousenm($fetch2['WHOUSENO']).'</td><td>'.$fetch2['ITEMNO'].'</td><td>'.query_itemnm($fetch2['ITEMNO']).'</td><td>'.$fetch2['AMT'].'</td><td>'.$fetch2['LOGISTIC'].'</td><td>'.$fetch2['REQUEST'].'</td><td>'.$fetch2['UPDATETIME'].'</td><td>'.$fetch2['MEMO'].'</td></tr>';
+				}
+				$content .= '</table><button onclick="export_whouseitem()">確定輸出</button>';
+				return array('message' => 'Success', 'content' => $content);
+			}
+		}
+	}
+}
+
+function export($content) {
+	$account = $content['account'];
+	$token = $content['token'];
+	$whousenostart = $content['whousenostart'];
+	$whousenoend = $content['whousenoend'];
+	$itemnostart = $content['itemnostart'];
+	$itemnoend = $content['itemnoend'];
+	$sql1 = mysql_query("SELECT * FROM USER WHERE ACCOUNT='$account' AND ACTCODE=1");
+	if (!include_once("../resource/tcpdf.php")) {
+		return 'Unable to load export tool';
+	}
+	elseif (empty($account)) {
+		return 'Empty account';
+	}
+	elseif (empty($token)) {
+		return 'Empty token';
+	}
+	elseif ($sql1 == false) {
+		return 'Unregistered account';
+	}
+	else {
+		$fetch1 = mysql_fetch_array($sql1);
+		if ($fetch1['TOKEN'] != $token) {
+			return 'Wrong token';
+		}
+		elseif ($fetch1['AUTHORITY'] != 'A' && $fetch1['AUTHORITY'] != 'B') {
+			return 'No authority';
+		}
+		else {
+			$sql2 = "SELECT * FROM WHOUSEITEM WHERE ACTCODE=1";
+			if (!empty($whousenostart)) {
+				$sql2 .= "AND WHOUSENO>='$whousenostart'";
+			}
+			if (!empty($whousenoend)) {
+				$sql2 .= "AND WHOUSENO<='$whousenoend'";
+			}
+			if (!empty($itemnostart)) {
+				$sql2 .= "AND ITEMNO>='$itemnostart'";
+			}
+			if (!empty($itemnoend)) {
+				$sql2 .= "AND ITEMNO<='$itemnoend'";
+			}
+			$sql2 = mysql_query($sql2);
+			if ($sql2 == false || mysql_num_rows($sql2) == 0) {
+				return 'No data';
+			}
+			else {
+				download_whouseitem_pdf($sql2);
+				download_whouseitem_xls($sql2);
+				return 'Success';
+			}
+		}
+	}
+}
+
 function check_item_empty($content) {
 	$account = $content['account'];
 	$token = $content['token'];
@@ -537,5 +647,62 @@ function check_item_delete($content) {
 				return 'ok';
 			}
 		}
+	}
+}
+
+function query_whousenm($whouseno) {
+	$sql = mysql_query("SELECT WHOUSENM FROM WHOUSE WHERE WHOUSENO='$whouseno'");
+	$fetch = mysql_fetch_array($sql);
+	return $fetch['WHOUSENM'];
+}
+
+function query_itemnm($itemno) {
+	$sql = mysql_query("SELECT ITEMNM FROM ITEM WHERE ITEMNO='$itemno'");
+	$fetch = mysql_fetch_array($sql);
+	return $fetch['ITEMNM'];
+}
+
+function download_whouseitem_pdf($resource) {
+	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+	$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+	$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+	$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+	$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+	$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+	if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+		require_once(dirname(__FILE__).'/lang/eng.php');
+		$pdf->setLanguageArray($l);
+	}
+	$pdf->AddPage();
+	$pdf->SetFont('cid0jp', 'B', 20);
+	$pdf->Write(0, '倉庫物料', '', 0, 'C', true, 0, false, false, 0);
+	$pdf->SetFont('cid0jp', '', 12);
+
+	$tbl = '<table><tr><td>倉庫編號</td><td>倉庫名稱</td><td>物料編號</td><td>物料名稱</td><td>存量</td><td>運送權</td><td>請求權</td><td>最後修改時間</td><td>備註</td></tr>';
+	while ($fetch = mysql_fetch_array($resource)) {
+		$tbl .= '<tr><td>'.$fetch['WHOUSENO'].'</td><td>'.query_whousenm($fetch['WHOUSENO']).'</td><td>'.$fetch['ITEMNO'].'</td><td>'.query_itemnm($fetch['ITEMNO']).'</td><td>'.$fetch['AMT'].'</td><td>'.$fetch['LOGISTIC'].'</td><td>'.$fetch['REQUEST'].'</td><td>'.$fetch['UPDATETIME'].'</td><td>'.$fetch['MEMO'].'</td></tr>';
+	}
+	$tbl .= '</table>';
+	$pdf->writeHTML($tbl, true, false, false, false, '');
+	ob_end_clean();
+	$pdf->Output('whouseitem.pdf', 'D');
+}
+
+function download_whouseitem_xls($resource) {
+	$fp = fopen("倉庫物料.xls", "w");
+	$content = "倉庫編號 \t倉庫名稱 \t物料編號 \t物料名稱 \t存量 \t運送權 \t請求權 \t最後修改時間 \t備註\n";
+	while ($fetch = mysql_fetch_array($resource)) {
+		$content .= $fetch['WHOUSENO']."\t".query_whousenm($fetch['WHOUSENO'])."\t".$fetch['ITEMNO']."\t".query_itemnm($fetch['ITEMNO'])."\t".$fetch['AMT']."\t".$fetch['LOGISTIC']."\t".$fetch['REQUEST']."\t".$fetch['UPDATETIME']."\t".$fetch['MEMO']."\n";
+	}
+	if (fputs($fp, mb_convert_encoding($content, "Big5", "UTF-8"))) {
+		fclose($fp);
+		return 0;
+	}
+	else {
+		fclose($fp);
+		return 1;
 	}
 }
